@@ -1,0 +1,49 @@
+# Configuration for FMI Forest Fire satellite software
+
+# Paths, masking configs, etc.
+
+mask_functions:
+  land_cover_mask:
+    mask_file: foo.h5
+  cloud_mask:
+    null
+
+# Algorithm settings
+
+# Temperature limits and deltas for different probability levels for
+# day and night cases
+probability_levels:
+  low:
+    day:
+      temp_nir: 310.
+      delta_nir_ir: 6.
+    night:
+      temp_nir: 308.
+      delta_nir_ir: 4.
+  medium:
+    day:
+      temp_nir: 311.
+      delta_nir_ir: 6.
+    night:
+      temp_nir: 309.
+      delta_nir_ir: 4.
+  high:
+    day:
+      temp_nir: 312.
+      delta_nir_ir: 4.
+    night:
+      temp_nir: 310.
+      delta_nir_ir: 4.
+
+# Exclusion limits for background pixels
+# NIR temperatures above this are invalid
+bg_nir_temp_limit: 318.
+# NIR - IR deltas above this are invalid
+bg_delta_nir_ir: 12.
+
+# Number and fraction of required valid background pixels
+bg_num_valid: 6
+bg_fraction_valid: .25
+
+# Side lengths for background pixel checks
+bg_side_lengths: [5, 7, 9, 11, 13, 15, 17, 19, 21]

@@ -1,0 +1,27 @@
+config:
+  # log_config:
+  use_locks: &use_locks
+    true
+  fffsat_config: & fffsat_config:
+    !!python/object/apply:fffsat.utils.read_config
+      - forest_fire.yaml
+
+work:
+    - type: daemon
+      name: listener
+      components:
+        - class: !!python/object:posttroll.listener.ListenerContainer
+            topics:
+              - /stalker/new/file/yay
+    - type: workflow
+      name: fffsat
+      Workflow:
+        - fffsat.fffsat_plugin.FFFsat
+          config: *fffsat_config
+          use_lock: *use_locks
+#    - type: workflow
+#      name: fffsat_writer
+#      Wrokflow:
+#        - fffsat.fffsat_writer.FFFsatWriter
+#          config: *fffsat_config
+#          use_lock: *use_locks

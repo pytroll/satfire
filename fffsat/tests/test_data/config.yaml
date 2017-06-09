@@ -1,0 +1,13 @@
+item_1:
+  foo
+item_2:
+  - bar
+  - baz
+item_3:
+  spam:
+    - eggs
+    - baked beans
+item_4:
+  42
+item_5:
+  1.
