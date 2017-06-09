@@ -37,7 +37,7 @@ class ForestFire(object):
     def run(self, msg):
         """Run everything"""
         self.msg = msg
-        self.data = utils.read_sat_data(msg, config["channels_to_load"])
+        self.data = utils.read_sat_data(msg, self.config["channels_to_load"])
         self.mask = self.data[self.config["NIR_CHAN_NAME"]].mask.copy()
 
         self.mask_data()
