@@ -18,10 +18,21 @@ class ForestFire(object):
     Planck et. al."""
 
     def __init__(self, config):
+        # Configuration dictionary for ForestFire class
         self.config = config
+        # Unprojected satpy scene with all the required channels, angles and
+        # coordinates
         self.data = None
+        # Common mask for all the datasets in self.data
+        # All invalid pixels are set as True.  After processing the locations
+        # marked as False are the valid forest fires.
         self.mask = None
+        # Incoming message
         self.msg = None
+        # Probability of fire
+        self.probability = None
+        # Quality of the hot spot retrieval
+        self.quality = None
 
     def run(self, msg):
         """Run everything"""
@@ -40,6 +51,8 @@ class ForestFire(object):
         self.data = None
         self.mask = None
         self.msg = None
+        self.probability = None
+        self.quality = None
 
     def apply_mask(self, mask):
         """Apply given mask to the product mask"""
@@ -76,7 +89,7 @@ class ForestFire(object):
 
     def cloud_mask(self, config):
         """Read cloud exclusion mask"""
-        # Get cloud mask filename from the message
+        # Get cloud mask (NWC SAF CMa) filename from the message
         fname = None  # msg[""]
         mask = utils.read_cloud_mask(fname)
         return mask
