@@ -7,6 +7,7 @@
 #
 #   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
+import numpy as np
 
 from fffsat import utils
 
