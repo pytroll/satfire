@@ -31,6 +31,10 @@ class ForestFire(object):
 
         self.mask_data()
 
+    def save(self):
+        """Save forest fires"""
+        pass
+
     def clean(self):
         """Cleanup after processing."""
         self.data = None

@@ -44,9 +44,8 @@ class FFFsat(AbstractWorkflowComponent):
         self.logger.info("Finding forest fires.")
 
         fff = ForestFire(context["config"])
-        fires = fff.run(context["content"])
-
-        context["output_queue"].put(fires)
+        fff.run(context["content"])
+        fff.save()
 
         if self.use_lock:
             self.logger.debug("FFFsat releases own lock %s",
