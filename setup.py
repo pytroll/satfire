@@ -24,10 +24,9 @@ setup(name="fffsat",
       packages=['fffsat',
                 'fffsat.tests'
                 ],
-      scripts=['bin/fffsat.py', ],
       data_files=[],
       zip_safe=False,
-      install_requires=['pyyaml', 'satpy'],
-      tests_require=['mock', 'pyyaml', 'satpy'],
+      install_requires=['pyyaml', 'satpy', 'trollflow', 'trollflow-sat'],
+      tests_require=['mock', 'pyyaml', 'satpy', 'trollflow', 'trollflow-sat'],
       test_suite='fffsat.tests.suite',
       )
