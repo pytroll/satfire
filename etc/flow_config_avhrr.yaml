@@ -4,7 +4,7 @@ config:
     true
   fffsat_config: & fffsat_config:
     !!python/object/apply:fffsat.utils.read_config
-      - forest_fire.yaml
+      - forest_fire_avhrr.yaml
 
 work:
     - type: daemon
@@ -12,7 +12,7 @@ work:
       components:
         - class: !!python/object:posttroll.listener.ListenerContainer
             topics:
-              - /stalker/new/file/yay
+              - /AAPP-HRPT/1B
     - type: workflow
       name: fffsat
       Workflow:
