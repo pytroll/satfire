@@ -16,12 +16,12 @@ import fffsat
 
 def main():
     config = fffsat.utils.read_config(sys.argv[1])
+    sat_fname = sys.argv[2]
+    cma_fname = sys.argv[3]
 
     fff = fffsat.ForestFire(config)
-    try:
-        fff.run()
-    except KeyboardInterrupt:
-        fff.stop()
+    fff.run(sat_fname=sat_fname, cma_fname=cma_fname)
+    fff.save()
 
 if __name__ == "__main__":
     main()
