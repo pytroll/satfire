@@ -9,10 +9,12 @@
 #   Panu Lahtinen <panu.lahtinen@fmi.fi>
 """Utility functions for FFFsat"""
 
+import os.path
 import yaml
 from collections import OrderedDict
 
 from satpy import Scene
+from trollsift import parse
 
 
 def ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
@@ -34,6 +36,28 @@ def read_config(fname):
         config = ordered_load(fid)
 
     return config
+
+
+def get_filenames_from_msg(msg, config):
+    """Find filenames for satellite data and cloud mask data from the message.
+    """
+    sat_fname = None
+    cma_fname = None
+    for dset in msg.data['dataset']:
+        fname = dset['uri']
+        # Try matching to filename patterns given in config
+        try:
+            parse(config["data_fname_pattern"], os.path.basename(fname))
+            sat_fname = fname
+        except ValueError:
+            pass
+        try:
+            parse(config["cloud_mask_fname_pattern"], os.path.basename(fname))
+            cma_fname = fname
+        except ValueError:
+            pass
+
+    return sat_fname, cma_fname
 
 
 def read_sat_data(msg, channels):
