@@ -68,8 +68,3 @@ class FFFsat(AbstractWorkflowComponent):
     def post_invoke(self):
         """Post-invoke"""
         pass
-
-
-def do_something_with_content(something):
-    """Do something"""
-    return 2 * something
