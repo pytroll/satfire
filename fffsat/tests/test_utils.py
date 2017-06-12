@@ -69,7 +69,7 @@ class TestUtils(unittest.TestCase):
         l1b_fname = "/tmp/avhrr_metop01_20170612_0949_24560.l1b"
 
         # Both files
-        dataset = {"dataset": [{"uri": cma_pattern}, {"uri": l1b_fname}]}
+        dataset = {"dataset": [{"uri": cma_fname}, {"uri": l1b_fname}]}
         msg = Message("/topic", "dataset", dataset)
         sat, cma = utils.get_filenames_from_msg(msg, config)
         self.assertEqual(sat, l1b_fname)
@@ -83,11 +83,18 @@ class TestUtils(unittest.TestCase):
         self.assertIsNone(cma)
 
         # Only cloud mask file
-        dataset = {"dataset": [{"uri": l1b_fname}]}
+        dataset = {"dataset": [{"uri": cma_fname}]}
         msg = Message("/topic", "dataset", dataset)
         sat, cma = utils.get_filenames_from_msg(msg, config)
-        self.assertEqual(sat, l1b_fname)
+        self.assertEqual(cma, cma_fname)
+        self.assertIsNone(sat)
+
+        # No files
+        dataset = {"dataset": []}
+        msg = Message("/topic", "dataset", dataset)
+        sat, cma = utils.get_filenames_from_msg(msg, config)
         self.assertIsNone(cma)
+        self.assertIsNone(sat)
 
 
 def suite():
