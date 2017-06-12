@@ -34,10 +34,13 @@ class ForestFire(object):
         # Quality of the hot spot retrieval
         self.quality = None
 
-    def run(self, msg):
+    def run(self, msg=None, sat_fname=None, cma_fname=None):
         """Run everything"""
-        self.msg = msg
-        self.data = utils.read_sat_data(msg, self.config["channels_to_load"])
+        if msg is not None:
+            self.msg = msg
+            sat_fname, cma_fname = utils.get_filenames_from_msg(msg)
+        self.data = utils.read_sat_data(sat_fname,
+                                        self.config["channels_to_load"])
         self.mask = self.data[self.config["NIR_CHAN_NAME"]].mask.copy()
 
         self.mask_data()
