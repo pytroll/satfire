@@ -27,6 +27,7 @@ setup(name="fffsat",
       data_files=[],
       zip_safe=False,
       install_requires=['pyyaml', 'satpy', 'trollflow', 'trollflow-sat'],
-      tests_require=['mock', 'pyyaml', 'satpy', 'trollflow', 'trollflow-sat'],
+      tests_require=['mock', 'pyyaml', 'satpy', 'trollflow', 'trollflow-sat',
+                     'posttroll'],
       test_suite='fffsat.tests.suite',
       )
