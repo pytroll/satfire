@@ -134,9 +134,11 @@ class ForestFire(object):
         mask = fvc < self.config["fcv_mask"]["threshold"]
         return mask
 
-    def swath_edge_mask():
+    def swath_edge_mask(self):
         """Create mask for the swath edges"""
-        mask = None
+        sza = self.data["sensor_zenith_angle"]
+        threshold = self.config["swath_edge_mask"]["threshold"]
+        mask = sza > threshold
         return mask
 
     def create_cloud_mask(self):
