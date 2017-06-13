@@ -42,6 +42,9 @@ fcv_mask:
 swath_edge_mask:
   # From Planck et.al. 2017
   threshold: 40.0
+water_mask:
+  # First guess
+  threshold: 12.0
 
 # Algorithm settings
 

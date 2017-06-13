@@ -113,7 +113,12 @@ class ForestFire(object):
         """Create water mask"""
         # eq. 1 from Planck et. al.
         # maybe not use this?
-        mask = None
+        vis = self.data[self.config["vis_chan_name"]]
+        nir = self.data[self.config["nir_chan_name"]]
+        threshold = self.config["water_mask"]["threshold"]
+        mean_vis_nir = (vis + nir) / 2.
+        std_vis_nir = np.std(np.dstack((vis.data, nir.data)), axis=2)
+        mask = ((mean_vis_nir ** 2 / std_vis_nir) < threshold) & (vis > nir)
         return mask
 
     def sun_glint_mask(self):
