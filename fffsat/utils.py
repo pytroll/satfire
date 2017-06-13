@@ -13,6 +13,8 @@ import os.path
 import yaml
 from collections import OrderedDict
 
+import numpy as np
+
 from satpy import Scene
 from trollsift import parse
 
@@ -91,3 +93,8 @@ def read_snow_mask():
 def read_water_mask():
     """Read water exclusion mask"""
     pass
+
+
+def mean_abs_deviation(data):
+    """Calculate absolute mean deviation of *data*"""
+    return np.sum(np.abs(data - np.mean(data))) / data.size
