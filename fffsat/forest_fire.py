@@ -124,7 +124,21 @@ class ForestFire(object):
     def sun_glint_mask(self):
         """Create Sun glint mask"""
         # eq. 5 - 8 from Planck et. al.
-        mask = None
+        sat_za = np.radians(self.data[self.config["sat_za_name"]])
+        sun_za = np.radians(self.data[self.config["sol_za_name"]])
+        rel_aa = np.radians(self.data[self.config["rel_az_name"]])
+        nir = self.data[self.config["nir_chan_name"]]
+
+        angle_th1 = \
+            np.radians(self.config["sun_glint_mask"]["angle_threshold_1"])
+        angle_th2 = \
+            np.radians(self.config["sun_glint_mask"]["angle_threshold_2"])
+        nir_refl_th = self.config["sun_glint_mask"]["nir_refl_threshold"]
+
+        glint = np.arccos(np.cos(sat_za) * np.cos(sun_za) -
+                          np.sin(sat_za) * np.sin(sun_za) * np.cos(rel_aa))
+        mask = ((glint < angle_th1) |
+                ((glint < angle_th2) & (nir > nir_refl_th)))
         return mask
 
     def fcv_mask(self):
@@ -141,7 +155,7 @@ class ForestFire(object):
 
     def swath_edge_mask(self):
         """Create mask for the swath edges"""
-        sza = self.data["sensor_zenith_angle"]
+        sza = self.data[self.config["sat_za_name"]]
         threshold = self.config["swath_edge_mask"]["threshold"]
         mask = sza > threshold
         return mask
