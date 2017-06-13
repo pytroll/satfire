@@ -37,8 +37,11 @@ snow_mask:
 cloud_mask:
   threshold: null
 fcv_mask:
-  threshold: null
-
+  # From Planck et.al. 2017
+  threshold: 0.1
+swath_edge_mask:
+  # From Planck et.al. 2017
+  threshold: 40.0
 
 # Algorithm settings
 
