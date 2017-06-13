@@ -212,11 +212,12 @@ class ForestFire(object):
             rows, cols = np.nonzeros(candidates)
 
             for i in range(len(rows)):
-                qty = self.is_fire(rows[i], cols[i])
+                qty = self.is_fire(rows[i], cols[i],
+                                   is_day=day_mask[rows[i], cols[i]])
                 self.fires[(rows[i], cols[i])] = {'quality': qty,
                                                   'probability': lvl}
 
-    def is_fire(self, row, col):
+    def is_fire(self, row, col, is_day=True):
         """Check if hotspot at [row, col] is a fire or not."""
         pass
 
