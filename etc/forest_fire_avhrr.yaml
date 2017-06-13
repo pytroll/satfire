@@ -59,21 +59,24 @@ sun_glint_mask:
 # Temperature limits and deltas for different probability levels for
 # day and night cases
 probability_levels:
-  low:
+  2:
+    name: low
     day:
       temp_nir: 310.
       delta_nir_ir: 6.
     night:
       temp_nir: 308.
       delta_nir_ir: 4.
-  medium:
+  3:
+    name: medium
     day:
       temp_nir: 311.
       delta_nir_ir: 6.
     night:
       temp_nir: 309.
       delta_nir_ir: 4.
-  high:
+  4:
+    name: high
     day:
       temp_nir: 312.
       delta_nir_ir: 4.
