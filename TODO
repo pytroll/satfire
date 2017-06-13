@@ -8,12 +8,10 @@ TODO:
     - resample_aux()
     - water/land
     - land cover
-  - sun glint mask
-  - data-based water mask
 
 * saving
   - fileformat(s)?
 
-* finish fffsat_plugin.FFFsat
-
 * finish forest_fire.ForestFire
+  - find background pixels
+  - complete is_fire()
