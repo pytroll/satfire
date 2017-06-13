@@ -81,6 +81,8 @@ probability_levels:
       temp_nir: 310.
       delta_nir_ir: 4.
 
+sol_za_day_limit: 85.
+
 # Exclusion limits for background pixels
 # NIR temperatures above this are invalid
 bg_nir_temp_limit: 318.
