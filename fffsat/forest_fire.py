@@ -77,9 +77,8 @@ class ForestFire(object):
     def mask_data(self):
         """Create and apply all masks"""
         for func_name in self.config["mask_functions"]:
-            func_conf = self.config["mask_functions"][func_name]
             read_func = getattr(self, func_name)
-            mask = read_func(func_conf)
+            mask = read_func()
             self.apply_mask(mask)
 
     # Static masks read from a file and resampled to match the swath
@@ -94,10 +93,10 @@ class ForestFire(object):
     # Masking based on data in satellite projection, either external
     # or calculated from reflectances/BTs
 
-    def snow_mask(self, config):
+    def snow_mask(self):
         """Read and resample snow exclusion mask"""
         # Read from NWC SAF?
-        mask, lons, lats = utils.read_snow_mask(config["mask_file"])
+        mask, lons, lats = utils.read_snow_mask(self.config["mask_file"])
         mask = self.resample_aux(mask, lons, lats)
         return mask
 
