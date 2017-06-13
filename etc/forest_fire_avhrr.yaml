@@ -21,6 +21,25 @@ channels_to_read:
   - sensor_zenith_angle
   - sun_sensor_azimuth_difference_angle
 
+# Channel names
+vis_chan_name: 0.6
+nir_chan_name: 0.8
+mir_chan_name: 3.9
+ir1_chan_name: 10.8
+ir2_chan_name: 12.0
+
+# Mask configs
+
+land_cover_mask:
+  mask_file: land_mask.h5
+snow_mask:
+  mask_file: snow_mask.h5
+cloud_mask:
+  threshold: null
+fcv_mask:
+  threshold: null
+
+
 # Algorithm settings
 
 # Temperature limits and deltas for different probability levels for
