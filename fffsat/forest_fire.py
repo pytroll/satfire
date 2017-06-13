@@ -13,6 +13,12 @@ import numpy as np
 
 from fffsat import utils
 
+QUALITY_NOT_FIRE = 0
+QUALITY_UNKNOWN = 1
+QUALITY_LOW = 2
+QUALITY_MEDIUM = 3
+QUALITY_HIGH = 4
+
 
 class ForestFire(object):
 
@@ -31,12 +37,10 @@ class ForestFire(object):
         # All invalid pixels are set as True.  After processing the locations
         # marked as False are the valid forest fires.
         self.mask = None
-        # Probability of fire
-        self.probability = None
-        # Quality of the hot spot retrieval
-        self.quality = None
         # Cloud mask
         self.cloud_mask = None
+        # Result of fire mapping
+        self.fires = {}
 
     def run(self, msg=None, sat_fname=None, cma_fname=None):
         """Run everything"""
@@ -50,9 +54,12 @@ class ForestFire(object):
         if cma_fname is not None:
             self.cloud_mask = utils.read_cma(cma_fname)
 
+        # Initial mask
         self.mask = self.data[self.config["NIR_CHAN_NAME"]].mask.copy()
-
+        # Apply all masks
         self.mask_data()
+        # Find hotspots
+        self.find_hotspots()
 
     def save(self):
         """Save forest fires"""
@@ -62,9 +69,8 @@ class ForestFire(object):
         """Cleanup after processing."""
         self.data = None
         self.mask = None
-        self.probability = None
-        self.quality = None
         self.cloud_mask = None
+        self.fires = {}
 
     def apply_mask(self, mask):
         """Apply given mask to the product mask"""
@@ -177,46 +183,43 @@ class ForestFire(object):
 
         return clouds
 
+    def find_hotspots(self):
+        """Find hotspots from unmasked pixels"""
+        day_mask = (self.data[self.config["sol_za_name"]] <
+                    self.config["sol_za_day_limit"])
+        nir = self.data[self.config["nir_chan_name"]]
+        ir1 = self.data[self.config["ir1_chan_name"]]
+        delta_nir_ir = nir - ir1
 
-def select_candidates(prob_level):
-    """Select fire candidates based on the probability level"""
-    pass
+        probs = self.config["probability_levels"]
+        for lvl in probs:
+            day_nir = probs[lvl]["day"]["temp_nir"]
+            day_nir_ir = probs[lvl]["day"]["delta_nir_ir"]
+            night_nir = probs[lvl]["night"]["temp_nir"]
+            night_nir_ir = probs[lvl][""]["delta_nir_ir"]
 
+            candidates = (
+                # Day side
+                (day_mask &
+                 (nir > day_nir) &
+                 (delta_nir_ir > day_nir_ir)) |
+                # Night side
+                (np.invert(day_mask) &
+                 (nir > night_nir) &
+                 (delta_nir_ir > night_nir_ir)) &
+                # Global mask
+                np.invert(self.mask))
+            rows, cols = np.nonzeros(candidates)
 
-def calc_bg_nir_ir_mean():
-    """Calculate mean difference between NIR and IR channels for the valid
-    background pixels.  Used for day & night cases."""
-    pass
+            for i in range(len(rows)):
+                qty = self.is_fire(rows[i], cols[i])
+                self.fires[(rows[i], cols[i])] = {'quality': qty,
+                                                  'probability': lvl}
 
+    def is_fire(self, row, col):
+        """Check if hotspot at [row, col] is a fire or not."""
+        pass
 
-def calc_bg_nir_ir_abs_dev():
-    """Calculate mean absolute deviation of NIR and IR channel difference
-    for the valid background pixels.  Used for day & night cases
-    """
-    # eq. 11 in Planck et. al.
-    pass
-
-
-def calc_bg_ir_mean():
-    """Calculate mean of the valid background pixels of IR channel.  Used
-    for only the night cases."""
-    pass
-
-
-def calc_bg_ir_abs_dev():
-    """Calculate mean absolute deviation of IR channel for the valid
-    background pixels.  Used only for night cases."""
-    pass
-
-
-def check_which_are_fires():
-    """Check which of the candidate pixels are fires"""
-    # eq. 12 (day) and 13 (night) of Planck et. al.
-    pass
-
-
-def calc_quality():
-    """Calculate quality of the fire pixel by checking how far is the
-    closest invalid pixel."""
-    # table 4 of Planck et. al.
-    pass
+    def find_background(self, row, col):
+        """Find background pixels around pixel location [row, col]."""
+        pass
