@@ -27,6 +27,9 @@ nir_chan_name: 0.8
 mir_chan_name: 3.9
 ir1_chan_name: 10.8
 ir2_chan_name: 12.0
+sol_za_name: solar_zenith_angle
+sat_za_name: sensor_zenith_angle
+rel_az_name: sun_sensor_azimuth_difference_angle
 
 # Mask configs
 
@@ -45,6 +48,11 @@ swath_edge_mask:
 water_mask:
   # First guess
   threshold: 12.0
+sun_glint_mask:
+  # From Planck et.al. 2017
+  angle_threshold_1 = 5.0
+  angle_threshold_2 = 15.0
+  nir_refl_threshold = 20.0
 
 # Algorithm settings
 
