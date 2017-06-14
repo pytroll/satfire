@@ -212,15 +212,51 @@ class ForestFire(object):
             rows, cols = np.nonzeros(candidates)
 
             for i in range(len(rows)):
-                qty = self.is_fire(rows[i], cols[i],
-                                   is_day=day_mask[rows[i], cols[i]])
-                self.fires[(rows[i], cols[i])] = {'quality': qty,
+                quality = self.qualify_fires(rows[i], cols[i],
+                                             is_day=day_mask[rows[i], cols[i]])
+                self.fires[(rows[i], cols[i])] = {'quality': quality,
                                                   'probability': lvl}
 
-    def is_fire(self, row, col, is_day=True):
+    def qualify_fires(self, row, col, is_day=True):
         """Check if hotspot at [row, col] is a fire or not."""
-        pass
+        # Get valid background pixels for MIR and IR108 channels around
+        # [row, col]
+        mir_bg, ir1_bg, masked_dist = self.get_background(row, col)
+        if mir_bg is None or ir1_bg is None:
+            return QUALITY_UNKNOWN
 
-    def find_background(self, row, col):
+        mir = self.data[self.config["mir_chan_name"]][row, col]
+        ir1 = self.data[self.config["ir1_chan_name"]][row, col]
+        diff_mir_ir1 = mir - ir1
+
+        # Calculate statistics
+        mean_diff_bg = np.mean(mir_bg - ir1_bg)
+        mad_diff_bg = utils.mean_absolute_deviation(mir_bg - ir1_bg)
+        mean_ir1_bg = np.mean(ir1_bg)
+        mad_ir1_bg = utils.mean_absolute_deviation(ir1_bg)
+
+        if is_day:
+            if ((diff_mir_ir1 > mean_diff_bg + mad_diff_bg) and
+                    (ir1 > mean_ir1_bg + mad_ir1_bg - 3.)):
+                if masked_dist == 3:
+                    return QUALITY_LOW
+                elif masked_dist == 5:
+                    return QUALITY_MEDIUM
+                else:
+                    return QUALITY_HIGH
+            else:
+                return QUALITY_NOT_FIRE
+        else:
+            if (diff_mir_ir1 > mean_diff_bg + mad_diff_bg):
+                if masked_dist == 3:
+                    return QUALITY_LOW
+                elif masked_dist == 5:
+                    return QUALITY_MEDIUM
+                else:
+                    return QUALITY_HIGH
+            else:
+                return QUALITY_NOT_FIRE
+
+    def get_background(self, row, col):
         """Find background pixels around pixel location [row, col]."""
         pass
