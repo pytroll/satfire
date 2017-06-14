@@ -19,6 +19,10 @@ QUALITY_LOW = 2
 QUALITY_MEDIUM = 3
 QUALITY_HIGH = 4
 
+BOX_SIZE_TO_QUALITY = {3: QUALITY_LOW,
+                       4: QUALITY_MEDIUM,
+                       5: QUALITY_HIGH}
+
 
 class ForestFire(object):
 
@@ -221,7 +225,7 @@ class ForestFire(object):
         """Check if hotspot at [row, col] is a fire or not."""
         # Get valid background pixels for MIR and IR108 channels around
         # [row, col]
-        mir_bg, ir1_bg, masked_dist = self.get_background(row, col)
+        mir_bg, ir1_bg, quality = self.get_background(row, col)
         if mir_bg is None or ir1_bg is None:
             return QUALITY_UNKNOWN
 
@@ -238,22 +242,12 @@ class ForestFire(object):
         if is_day:
             if ((diff_mir_ir1 > mean_diff_bg + mad_diff_bg) and
                     (ir1 > mean_ir1_bg + mad_ir1_bg - 3.)):
-                if masked_dist == 3:
-                    return QUALITY_LOW
-                elif masked_dist == 5:
-                    return QUALITY_MEDIUM
-                else:
-                    return QUALITY_HIGH
+                return quality
             else:
                 return QUALITY_NOT_FIRE
         else:
             if (diff_mir_ir1 > mean_diff_bg + mad_diff_bg):
-                if masked_dist == 3:
-                    return QUALITY_LOW
-                elif masked_dist == 5:
-                    return QUALITY_MEDIUM
-                else:
-                    return QUALITY_HIGH
+                return quality
             else:
                 return QUALITY_NOT_FIRE
 
@@ -267,6 +261,11 @@ class ForestFire(object):
         bg_num = self.config["bg_num_valid"]
         bg_fraction = self.config["bg_fraction_valid"]
 
+        # Ensure that 3x3 area is included for quality determination
+        sides = self.config["bg_side_lengths"]
+        if 3 not in sides:
+            sides.insert(0, 3)
+
         # References to full resolution datasets needed
         full_mir = self.data[self.config["mir_chan_name"]]
         full_ir1 = self.data[self.config["ir1_chan_name"]]
@@ -275,20 +274,19 @@ class ForestFire(object):
         mask_out = None
         mir_out = None
         ir1_out = None
-        masked_dist = 0
+        quality = QUALITY_UNKNOWN
 
         # Sample different background areas until enough valid data are found
-        # Ensure that 3x3 area is included for quality determination
-        for side in [3] + self.config["bg_side_lengths"]:
+        for side in sides:
             # Stop looping if everything is ready
-            if mask_out is not None and masked_dist > 0:
+            if mask_out is not None and quality > QUALITY_UNKNOWN:
                 break
 
             # Get indices for the surrounding side x side area
             y_idxs, x_idxs = \
                 utils.get_idxs_around_location(row, col, side,
                                                remove_neighbours=True)
-            # Get data for the area
+            # Reference data for the area
             mir = full_mir[y_idxs, x_idxs]
             ir1 = full_ir1[y_idxs, x_idxs]
             mask = full_mask[y_idxs, x_idxs].copy()
@@ -298,9 +296,9 @@ class ForestFire(object):
             mask[potential_fires] = True
 
             # Check if there are masked pixels inside this box
-            if masked_dist == 0:
+            if quality == QUALITY_UNKNOWN:
                 if np.any(mask) or side > 5:
-                    masked_dist = side
+                    quality = BOX_SIZE_TO_QUALITY.get(side, QUALITY_HIGH)
 
             # Find background only for boxes larger than 3x3 pixels
             if side > 3 and mask_out is None:
@@ -317,6 +315,6 @@ class ForestFire(object):
             mir_out = mir_out[mask_out].copy()
             ir1_out = ir1_out[mask_out].copy()
 
-            return mir_out, ir1_out, masked_dist
+            return mir_out, ir1_out, quality
         else:
-            return None, None, masked_dist
+            return None, None, quality
