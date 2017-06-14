@@ -15,6 +15,8 @@ import sys
 import os.path
 from collections import OrderedDict
 
+import numpy as np
+
 from fffsat import utils
 
 from posttroll.message import Message
@@ -95,6 +97,43 @@ class TestUtils(unittest.TestCase):
         sat, cma = utils.get_filenames_from_msg(msg, config)
         self.assertIsNone(cma)
         self.assertIsNone(sat)
+
+    def test_get_idxs_around_location(self):
+        side = 5
+        y_cor = np.array([0, 1, 2, 3, 4,
+                          0, 1, 2, 3, 4,
+                          0, 1, 2, 3, 4,
+                          0, 1, 2, 3, 4,
+                          0, 1, 2, 3, 4])
+        x_cor = np.array([0, 0, 0, 0, 0,
+                          1, 1, 1, 1, 1,
+                          2, 2, 2, 2, 2,
+                          3, 3, 3, 3, 3,
+                          4, 4, 4, 4, 4])
+        y_res, x_res = utils.get_idxs_around_location(2, 2, side,
+                                                      remove_neighbours=False)
+        self.assertTrue(y_res.size == 25)
+        self.assertTrue(x_res.size == 25)
+        self.assertTrue((y_cor == y_res).all())
+        self.assertTrue((x_cor == x_res).all())
+
+        side = 5
+        y_cor = np.array([0, 1, 2, 3, 4,
+                          0, 4,
+                          0, 4,
+                          0, 4,
+                          0, 1, 2, 3, 4])
+        x_cor = np.array([0, 0, 0, 0, 0,
+                          1, 1,
+                          2, 2,
+                          3, 3,
+                          4, 4, 4, 4, 4])
+        y_res, x_res = utils.get_idxs_around_location(2, 2, side,
+                                                      remove_neighbours=True)
+        self.assertTrue(y_res.size == 16)
+        self.assertTrue(x_res.size == 16)
+        self.assertTrue((y_cor == y_res).all())
+        self.assertTrue((x_cor == x_res).all())
 
 
 def suite():

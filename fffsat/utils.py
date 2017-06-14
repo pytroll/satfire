@@ -98,3 +98,29 @@ def read_water_mask():
 def mean_abs_deviation(data):
     """Calculate absolute mean deviation of *data*"""
     return np.sum(np.abs(data - np.mean(data))) / data.size
+
+
+def get_idxs_around_location(row, col, side, remove_neighbours=False):
+    """Get indices around given location in a side x side box.  Optionally remove
+    neighbouring pixels."""
+    y_start = row - (side - 1) / 2
+    y_end = row + (side - 1) / 2 + 1
+    y_idxs = np.arange(y_start, y_end)
+
+    x_start = col - (side - 1) / 2
+    x_end = col + (side - 1) / 2 + 1
+    x_idxs = np.arange(x_start, x_end)
+
+    y_idxs, x_idxs = np.meshgrid(y_idxs, x_idxs)
+
+    if remove_neighbours:
+        mask = np.ones(y_idxs.shape, dtype=np.bool)
+        row_start = row - 1
+        row_end = row + 2
+        col_start = col - 1
+        col_end = col + 2
+        mask[row_start:row_end, col_start:col_end] = False
+        y_idxs = y_idxs[mask]
+        x_idxs = x_idxs[mask]
+
+    return y_idxs.ravel(), x_idxs.ravel()
