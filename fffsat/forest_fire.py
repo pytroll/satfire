@@ -262,4 +262,38 @@ class ForestFire(object):
         IR108 channels.  Also return distance from [row, col] to closest masked
         pixel (cloud, water, urban area, etc.)
         """
-        pass
+        bg_mir = self.config["bg_mir_temp_limit"]
+        bg_delta = self.config["bg_delta_mir_ir"]
+        bg_num = self.config["bg_num_valid"]
+        bg_fraction = self.config["bg_fraction_valid"]
+
+        # References to full resolution datasets needed
+        full_mir = self.data[self.config["mir_chan_name"]]
+        full_ir1 = self.data[self.config["ir1_chan_name"]]
+        full_mask = self.mask
+
+        # Sample different background areas until enough valid data are found
+        bg_found = False
+        for side in self.config["bg_side_lengths"]:
+            idxs = utils.get_idxs_around_location(row, col, side,
+                                                  remove_neighbours=True)
+            mir = full_mir[idxs]
+            ir1 = full_ir1[idxs]
+            mask = full_mask.copy()
+            # Additional masking of potential background fire pixels
+            potential_fires = (mir > bg_mir) & ((mir - ir1) > bg_delta)
+            mask[potential_fires] = True
+            if ((mask.size - mask.sum() > bg_num) and
+                    (1. - mask.sum() / mask.size >= bg_fraction)):
+                # Sufficient background data found
+                bg_found = True
+                break
+
+        if bg_found:
+            mask = np.invert(mask)
+            mir = mir[mask]
+            ir1 = ir1[mask]
+            masked_dist = utils.dist_to_closest_true(full_mask, row, col)
+            return mir, ir1, masked_dist
+        else:
+            return None, None, None
