@@ -275,11 +275,12 @@ class ForestFire(object):
         # Sample different background areas until enough valid data are found
         bg_found = False
         for side in self.config["bg_side_lengths"]:
-            idxs = utils.get_idxs_around_location(row, col, side,
-                                                  remove_neighbours=True)
-            mir = full_mir[idxs]
-            ir1 = full_ir1[idxs]
-            mask = full_mask.copy()
+            y_idxs, x_idxs = \
+                utils.get_idxs_around_location(row, col, side,
+                                               remove_neighbours=True)
+            mir = full_mir[y_idxs, x_idxs]
+            ir1 = full_ir1[y_idxs, x_idxs]
+            mask = full_mask[y_idxs, x_idxs].copy()
             # Additional masking of potential background fire pixels
             potential_fires = (mir > bg_mir) & ((mir - ir1) > bg_delta)
             mask[potential_fires] = True
