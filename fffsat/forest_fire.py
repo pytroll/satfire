@@ -272,29 +272,51 @@ class ForestFire(object):
         full_ir1 = self.data[self.config["ir1_chan_name"]]
         full_mask = self.mask
 
+        mask_out = None
+        mir_out = None
+        ir1_out = None
+        masked_dist = 0
+
         # Sample different background areas until enough valid data are found
-        bg_found = False
-        for side in self.config["bg_side_lengths"]:
+        # Ensure that 3x3 area is included for quality determination
+        for side in [3] + self.config["bg_side_lengths"]:
+            # Stop looping if everything is ready
+            if mask_out is not None and masked_dist > 0:
+                break
+
+            # Get indices for the surrounding side x side area
             y_idxs, x_idxs = \
                 utils.get_idxs_around_location(row, col, side,
                                                remove_neighbours=True)
+            # Get data for the area
             mir = full_mir[y_idxs, x_idxs]
             ir1 = full_ir1[y_idxs, x_idxs]
             mask = full_mask[y_idxs, x_idxs].copy()
+
             # Additional masking of potential background fire pixels
             potential_fires = (mir > bg_mir) & ((mir - ir1) > bg_delta)
             mask[potential_fires] = True
-            if ((mask.size - mask.sum() > bg_num) and
-                    (1. - mask.sum() / mask.size >= bg_fraction)):
-                # Sufficient background data found
-                bg_found = True
-                break
 
-        if bg_found:
-            mask = np.invert(mask)
-            mir = mir[mask]
-            ir1 = ir1[mask]
-            masked_dist = utils.dist_to_closest_true(full_mask, row, col)
-            return mir, ir1, masked_dist
+            # Check if there are masked pixels inside this box
+            if masked_dist == 0:
+                if np.any(mask) or side > 5:
+                    masked_dist = side
+
+            # Find background only for boxes larger than 3x3 pixels
+            if side > 3 and mask_out is None:
+                if ((mask.size - mask.sum() > bg_num) and
+                        (1. - mask.sum() / mask.size >= bg_fraction)):
+                    # Sufficient background data found
+                    mask_out = mask.copy()
+                    mir_out = mir.copy()
+                    ir1_out = ir1.copy()
+
+        # Remove masked pixels
+        if mask_out is not None:
+            mask_out = np.invert(mask_out)
+            mir_out = mir_out[mask_out].copy()
+            ir1_out = ir1_out[mask_out].copy()
+
+            return mir_out, ir1_out, masked_dist
         else:
-            return None, None, None
+            return None, None, masked_dist
