@@ -62,35 +62,35 @@ probability_levels:
   2:
     name: low
     day:
-      temp_nir: 310.
-      delta_nir_ir: 6.
+      temp_mir: 310.
+      delta_mir_ir: 6.
     night:
-      temp_nir: 308.
-      delta_nir_ir: 4.
+      temp_mir: 308.
+      delta_mir_ir: 4.
   3:
     name: medium
     day:
-      temp_nir: 311.
-      delta_nir_ir: 6.
+      temp_mir: 311.
+      delta_mir_ir: 6.
     night:
-      temp_nir: 309.
-      delta_nir_ir: 4.
+      temp_mir: 309.
+      delta_mir_ir: 4.
   4:
     name: high
     day:
-      temp_nir: 312.
-      delta_nir_ir: 4.
+      temp_mir: 312.
+      delta_mir_ir: 4.
     night:
-      temp_nir: 310.
-      delta_nir_ir: 4.
+      temp_mir: 310.
+      delta_mir_ir: 4.
 
 sol_za_day_limit: 85.
 
 # Exclusion limits for background pixels
-# NIR temperatures above this are invalid
-bg_nir_temp_limit: 318.
-# NIR - IR deltas above this are invalid
-bg_delta_nir_ir: 12.
+# MIR temperatures above this are invalid
+bg_mir_temp_limit: 318.
+# MIR - IR deltas above this are invalid
+bg_delta_mir_ir: 12.
 
 # Number and fraction of required valid background pixels
 bg_num_valid: 6

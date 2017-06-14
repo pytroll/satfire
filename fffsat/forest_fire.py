@@ -187,26 +187,26 @@ class ForestFire(object):
         """Find hotspots from unmasked pixels"""
         day_mask = (self.data[self.config["sol_za_name"]] <
                     self.config["sol_za_day_limit"])
-        nir = self.data[self.config["nir_chan_name"]]
+        mir = self.data[self.config["mir_chan_name"]]
         ir1 = self.data[self.config["ir1_chan_name"]]
-        delta_nir_ir = nir - ir1
+        delta_mir_ir = mir - ir1
 
         probs = self.config["probability_levels"]
         for lvl in probs:
-            day_nir = probs[lvl]["day"]["temp_nir"]
-            day_nir_ir = probs[lvl]["day"]["delta_nir_ir"]
-            night_nir = probs[lvl]["night"]["temp_nir"]
-            night_nir_ir = probs[lvl][""]["delta_nir_ir"]
+            day_mir = probs[lvl]["day"]["temp_mir"]
+            day_mir_ir = probs[lvl]["day"]["delta_mir_ir"]
+            night_mir = probs[lvl]["night"]["temp_mir"]
+            night_mir_ir = probs[lvl][""]["delta_mir_ir"]
 
             candidates = (
                 # Day side
                 (day_mask &
-                 (nir > day_nir) &
-                 (delta_nir_ir > day_nir_ir)) |
+                 (mir > day_mir) &
+                 (delta_mir_ir > day_mir_ir)) |
                 # Night side
                 (np.invert(day_mask) &
-                 (nir > night_nir) &
-                 (delta_nir_ir > night_nir_ir)) &
+                 (mir > night_mir) &
+                 (delta_mir_ir > night_mir_ir)) &
                 # Global mask
                 np.invert(self.mask))
             rows, cols = np.nonzeros(candidates)
@@ -258,5 +258,8 @@ class ForestFire(object):
                 return QUALITY_NOT_FIRE
 
     def get_background(self, row, col):
-        """Find background pixels around pixel location [row, col]."""
+        """Get background data around pixel location [row, col] for MIR and
+        IR108 channels.  Also return distance from [row, col] to closest masked
+        pixel (cloud, water, urban area, etc.)
+        """
         pass
