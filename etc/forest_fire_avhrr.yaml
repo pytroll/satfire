@@ -3,9 +3,9 @@
 # Paths, masking configs, etc.
 
 mask_functions:
-  land_cover_mask:
+  get_land_cover_mask:
     mask_file: foo.h5
-  cloud_mask:
+  get_cloud_mask:
     null
 
 # Channels to read

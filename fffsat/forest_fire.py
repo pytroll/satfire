@@ -93,7 +93,7 @@ class ForestFire(object):
 
     # Static masks read from a file and resampled to match the swath
 
-    def land_cover_mask(self):
+    def get_land_cover_mask(self):
         """Read and resample land cover exclusion mask"""
         mask, lons, lats = \
             utils.read_land_cover(self.config["land_cover_mask"]["mask_file"])
@@ -103,14 +103,14 @@ class ForestFire(object):
     # Masking based on data in satellite projection, either external
     # or calculated from reflectances/BTs
 
-    def snow_mask(self):
+    def get_snow_mask(self):
         """Read and resample snow exclusion mask"""
         # Read from NWC SAF?
         mask, lons, lats = utils.read_snow_mask(self.config["mask_file"])
         mask = self.resample_aux(mask, lons, lats)
         return mask
 
-    def cloud_mask(self):
+    def get_cloud_mask(self):
         """Get exclusion mask"""
         if self.cloud_mask is not None:
             return self.cloud_mask
@@ -118,7 +118,7 @@ class ForestFire(object):
             self.logger.warning("NWC SAF cloud mask not available")
             return self.create_cloud_mask()
 
-    def water_mask(self):
+    def create_water_mask(self):
         """Create water mask"""
         # eq. 1 from Planck et. al.
         # maybe not use this?
@@ -130,7 +130,7 @@ class ForestFire(object):
         mask = ((mean_vis_nir ** 2 / std_vis_nir) < threshold) & (vis > nir)
         return mask
 
-    def sun_glint_mask(self):
+    def create_sun_glint_mask(self):
         """Create Sun glint mask"""
         # eq. 5 - 8 from Planck et. al.
         sat_za = np.radians(self.data[self.config["sat_za_name"]])
@@ -150,7 +150,7 @@ class ForestFire(object):
                 ((glint < angle_th2) & (nir > nir_refl_th)))
         return mask
 
-    def fcv_mask(self):
+    def create_fcv_mask(self):
         """Calculate fraction of vegetation exclusion mask"""
         # eq. 9 and 10 from Planck et.al. 2017
         ch1 = self.data[self.config["vis_chan_name"]]
@@ -162,7 +162,7 @@ class ForestFire(object):
         mask = fvc < self.config["fcv_mask"]["threshold"]
         return mask
 
-    def swath_edge_mask(self):
+    def create_swath_edge_mask(self):
         """Create mask for the swath edges"""
         sza = self.data[self.config["sat_za_name"]]
         threshold = self.config["swath_edge_mask"]["threshold"]
