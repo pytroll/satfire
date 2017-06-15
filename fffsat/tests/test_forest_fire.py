@@ -201,6 +201,14 @@ class TestForestFire(unittest.TestCase):
         self.assertEqual(mir.size, 14)  # neighbours are removed, so size stays
         self.assertEqual(ir1.size, 14)  # the same
         self.assertEqual(quality, utils.QUALITY_LOW)
+        # Mask everything
+        self.fff.mask[:, :] = True
+        mir, ir1, quality = self.fff.get_background(8, 8)
+        self.assertIsNone(mir)
+        self.assertIsNone(ir1)
+        # Quality is "low", but it'll be changed to "not fire" in
+        # qualify_fires() because there were no valid data
+        self.assertEqual(quality, utils.QUALITY_LOW)
         self.fff.clean()
 
     def test_qualify_fires(self):
@@ -217,6 +225,10 @@ class TestForestFire(unittest.TestCase):
         self.fff.data[self.config["mir_chan_name"]][15, 33] = 340.
         res = self.fff.qualify_fires(15, 33, is_day=True)
         self.assertEqual(res, utils.QUALITY_HIGH)
+        # Mask everything
+        self.fff.mask[:, :] = True
+        res = self.fff.qualify_fires(15, 33, is_day=True)
+        self.assertEqual(res, utils.QUALITY_UNKNOWN)
         # TODO: add night-time tests
         self.fff.clean()
 
