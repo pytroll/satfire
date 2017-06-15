@@ -20,8 +20,8 @@ QUALITY_MEDIUM = 3
 QUALITY_HIGH = 4
 
 BOX_SIZE_TO_QUALITY = {3: QUALITY_LOW,
-                       4: QUALITY_MEDIUM,
-                       5: QUALITY_HIGH}
+                       5: QUALITY_MEDIUM,
+                       7: QUALITY_HIGH}
 
 
 class ForestFire(object):
