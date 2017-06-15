@@ -12,6 +12,5 @@ TODO:
 * saving
   - fileformat(s)?
 
-* finish forest_fire.ForestFire
-  - find background pixels
-  - complete is_fire()
+* Use probability levels from utils.py
+* Add night-time test data + test cases
