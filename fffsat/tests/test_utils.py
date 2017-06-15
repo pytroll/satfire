@@ -100,20 +100,21 @@ class TestUtils(unittest.TestCase):
 
     def test_get_idxs_around_location(self):
         side = 5
+        # Note that the centre pixel is always masked out
         y_cor = np.array([0, 1, 2, 3, 4,
                           0, 1, 2, 3, 4,
-                          0, 1, 2, 3, 4,
+                          0, 1,    3, 4,
                           0, 1, 2, 3, 4,
                           0, 1, 2, 3, 4])
         x_cor = np.array([0, 0, 0, 0, 0,
                           1, 1, 1, 1, 1,
-                          2, 2, 2, 2, 2,
+                          2, 2,    2, 2,
                           3, 3, 3, 3, 3,
                           4, 4, 4, 4, 4])
         y_res, x_res = utils.get_idxs_around_location(2, 2, side,
                                                       remove_neighbours=False)
-        self.assertTrue(y_res.size == 25)
-        self.assertTrue(x_res.size == 25)
+        self.assertTrue(y_res.size == 24)
+        self.assertTrue(x_res.size == 24)
         self.assertTrue((y_cor == y_res).all())
         self.assertTrue((x_cor == x_res).all())
 

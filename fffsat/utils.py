@@ -122,11 +122,16 @@ def get_idxs_around_location(row, col, side, remove_neighbours=False):
 
     y_idxs, x_idxs = np.meshgrid(y_idxs, x_idxs)
 
+    mask = np.ones(y_idxs.shape, dtype=np.bool)
     if remove_neighbours is True:
-        mask = np.ones(y_idxs.shape, dtype=np.bool)
         start = side / 2 - 1
         end = start + 3
         mask[start:end, start:end] = False
+        y_idxs = y_idxs[mask]
+        x_idxs = x_idxs[mask]
+    # In any case, mask the centre pixel
+    else:
+        mask[side / 2, side / 2] = False
         y_idxs = y_idxs[mask]
         x_idxs = x_idxs[mask]
 
