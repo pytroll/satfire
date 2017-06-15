@@ -235,9 +235,9 @@ class ForestFire(object):
 
         # Calculate statistics
         mean_diff_bg = np.mean(mir_bg - ir1_bg)
-        mad_diff_bg = utils.mean_absolute_deviation(mir_bg - ir1_bg)
+        mad_diff_bg = utils.mean_abs_deviation(mir_bg - ir1_bg)
         mean_ir1_bg = np.mean(ir1_bg)
-        mad_ir1_bg = utils.mean_absolute_deviation(ir1_bg)
+        mad_ir1_bg = utils.mean_abs_deviation(ir1_bg)
 
         if is_day:
             if ((diff_mir_ir1 > mean_diff_bg + mad_diff_bg) and
