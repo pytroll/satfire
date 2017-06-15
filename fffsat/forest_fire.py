@@ -190,7 +190,7 @@ class ForestFire(object):
             day_mir = probs[lvl]["day"]["temp_mir"]
             day_mir_ir = probs[lvl]["day"]["delta_mir_ir"]
             night_mir = probs[lvl]["night"]["temp_mir"]
-            night_mir_ir = probs[lvl][""]["delta_mir_ir"]
+            night_mir_ir = probs[lvl]["night"]["delta_mir_ir"]
 
             candidates = (
                 # Day side
@@ -203,7 +203,7 @@ class ForestFire(object):
                  (delta_mir_ir > night_mir_ir)) &
                 # Global mask
                 np.invert(self.mask))
-            rows, cols = np.nonzeros(candidates)
+            rows, cols = np.nonzero(candidates)
 
             for i in range(len(rows)):
                 quality = self.qualify_fires(rows[i], cols[i],
