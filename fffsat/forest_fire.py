@@ -158,8 +158,8 @@ class ForestFire(object):
         ndvi = (ch2 - ch1) / (ch2 + ch1)
         ndvi_min = np.min(ndvi)
         ndvi_max = np.max(ndvi)
-        fvc = ((ndvi - ndvi_min) / (ndvi_max - ndvi_min)) ** 2
-        mask = fvc < self.config["fcv_mask"]["threshold"]
+        fcv = ((ndvi - ndvi_min) / (ndvi_max - ndvi_min)) ** 2
+        mask = fcv < self.config["fcv_mask"]["threshold"]
         return mask
 
     def create_swath_edge_mask(self):
