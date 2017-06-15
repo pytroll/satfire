@@ -51,9 +51,9 @@ water_mask:
   threshold: 30.0
 sun_glint_mask:
   # From Planck et.al. 2017
-  angle_threshold_1 = 5.0
-  angle_threshold_2 = 15.0
-  nir_refl_threshold = 20.0
+  angle_threshold_1: 5.0
+  angle_threshold_2: 15.0
+  nir_refl_threshold: 20.0
 
 # Algorithm settings
 
