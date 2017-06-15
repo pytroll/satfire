@@ -14,3 +14,6 @@ TODO:
 
 * Use probability levels from utils.py
 * Add night-time test data + test cases
+* Add unittests for utils.get_filenames_from_msg
+* Add unittests for utils.read_sat_data
+* 
