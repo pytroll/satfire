@@ -130,8 +130,8 @@ class TestUtils(unittest.TestCase):
                           4, 4, 4, 4, 4])
         y_res, x_res = utils.get_idxs_around_location(2, 2, side,
                                                       remove_neighbours=True)
-        self.assertTrue(y_res.size == 16)
-        self.assertTrue(x_res.size == 16)
+        self.assertTrue(y_res.size == side * side - 9)
+        self.assertTrue(x_res.size == side * side - 9)
         self.assertTrue((y_cor == y_res).all())
         self.assertTrue((x_cor == x_res).all())
 
