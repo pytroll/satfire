@@ -8,7 +8,7 @@
 #   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
 
-"""Unit testing for foo
+"""Unit testing for utils
 """
 
 import sys
