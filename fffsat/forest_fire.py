@@ -29,7 +29,7 @@ class ForestFire(object):
     """Class for creating forest fire hot spots based on algorithm by
     Planck et. al."""
 
-    logger = logging.get_logger("ForestFire")
+    logger = logging.getLogger("ForestFire")
 
     def __init__(self, config):
         # Configuration dictionary for ForestFire class
