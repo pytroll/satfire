@@ -17,6 +17,10 @@ import numpy as np
 from satpy import Scene
 from trollsift import parse
 
+PROBABILITY_LOW = 2
+PROBABILITY_MEDIUM = 3
+PROBABILITY_HIGH = 4
+
 QUALITY_NOT_FIRE = 0
 QUALITY_UNKNOWN = 1
 QUALITY_LOW = 2
