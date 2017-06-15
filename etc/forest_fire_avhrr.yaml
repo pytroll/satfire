@@ -38,7 +38,8 @@ land_cover_mask:
 snow_mask:
   mask_file: snow_mask.h5
 cloud_mask:
-  threshold: null
+  # Threshold used only if NWC SAF cloud mask is not available
+  threshold: 20
 fcv_mask:
   # From Planck et.al. 2017
   threshold: 0.1
