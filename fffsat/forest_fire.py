@@ -13,16 +13,6 @@ import numpy as np
 
 from fffsat import utils
 
-QUALITY_NOT_FIRE = 0
-QUALITY_UNKNOWN = 1
-QUALITY_LOW = 2
-QUALITY_MEDIUM = 3
-QUALITY_HIGH = 4
-
-BOX_SIZE_TO_QUALITY = {3: QUALITY_LOW,
-                       5: QUALITY_MEDIUM,
-                       7: QUALITY_HIGH}
-
 
 class ForestFire(object):
 
@@ -227,7 +217,7 @@ class ForestFire(object):
         # [row, col]
         mir_bg, ir1_bg, quality = self.get_background(row, col)
         if mir_bg is None or ir1_bg is None:
-            return QUALITY_UNKNOWN
+            return utils.QUALITY_UNKNOWN
 
         mir = self.data[self.config["mir_chan_name"]][row, col]
         ir1 = self.data[self.config["ir1_chan_name"]][row, col]
@@ -244,12 +234,12 @@ class ForestFire(object):
                     (ir1 > mean_ir1_bg + mad_ir1_bg - 3.)):
                 return quality
             else:
-                return QUALITY_NOT_FIRE
+                return utils.QUALITY_NOT_FIRE
         else:
             if (diff_mir_ir1 > mean_diff_bg + mad_diff_bg):
                 return quality
             else:
-                return QUALITY_NOT_FIRE
+                return utils.QUALITY_NOT_FIRE
 
     def get_background(self, row, col):
         """Get background data around pixel location [row, col] for MIR and
@@ -274,12 +264,12 @@ class ForestFire(object):
         mask_out = None
         mir_out = None
         ir1_out = None
-        quality = QUALITY_UNKNOWN
+        quality = utils.QUALITY_UNKNOWN
 
         # Sample different background areas until enough valid data are found
         for side in sides:
             # Stop looping if everything is ready
-            if mask_out is not None and quality > QUALITY_UNKNOWN:
+            if mask_out is not None and quality > utils.QUALITY_UNKNOWN:
                 break
 
             # Get indices for the surrounding side x side area
@@ -303,9 +293,11 @@ class ForestFire(object):
             mask[potential_fires] = True
 
             # Check if there are masked pixels inside this box
-            if quality == QUALITY_UNKNOWN:
+            if quality == utils.QUALITY_UNKNOWN:
                 if np.any(mask) or side > 5:
-                    quality = BOX_SIZE_TO_QUALITY.get(side, QUALITY_HIGH)
+                    quality = \
+                        utils.BOX_SIZE_TO_QUALITY.get(side,
+                                                      utils.QUALITY_HIGH)
 
             # Find background only for boxes larger than 3x3 pixels
             if side > 3 and mask_out is None:

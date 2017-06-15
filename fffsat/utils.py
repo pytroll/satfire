@@ -17,6 +17,16 @@ import numpy as np
 from satpy import Scene
 from trollsift import parse
 
+QUALITY_NOT_FIRE = 0
+QUALITY_UNKNOWN = 1
+QUALITY_LOW = 2
+QUALITY_MEDIUM = 3
+QUALITY_HIGH = 4
+
+BOX_SIZE_TO_QUALITY = {3: QUALITY_LOW,
+                       5: QUALITY_MEDIUM,
+                       7: QUALITY_HIGH}
+
 
 def ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
     class OrderedLoader(Loader):
