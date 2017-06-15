@@ -253,8 +253,8 @@ class ForestFire(object):
 
     def get_background(self, row, col):
         """Get background data around pixel location [row, col] for MIR and
-        IR108 channels.  Also return distance from [row, col] to closest masked
-        pixel (cloud, water, urban area, etc.)
+        IR108 channels.  Also return quality based on the distance from
+        [row, col] to closest masked pixel (cloud, water, urban area, etc.)
         """
         bg_mir = self.config["bg_mir_temp_limit"]
         bg_delta = self.config["bg_delta_mir_ir"]
@@ -283,9 +283,16 @@ class ForestFire(object):
                 break
 
             # Get indices for the surrounding side x side area
-            y_idxs, x_idxs = \
-                utils.get_idxs_around_location(row, col, side,
-                                               remove_neighbours=True)
+            if side > 3:
+                y_idxs, x_idxs = \
+                    utils.get_idxs_around_location(row, col, side,
+                                                   remove_neighbours=True)
+            # For quality determination don't remove the surrounding pixels
+            else:
+                y_idxs, x_idxs = \
+                    utils.get_idxs_around_location(row, col, side,
+                                                   remove_neighbours=False)
+
             # Reference data for the area
             mir = full_mir[y_idxs, x_idxs]
             ir1 = full_ir1[y_idxs, x_idxs]
