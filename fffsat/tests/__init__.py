@@ -10,7 +10,8 @@
 
 import unittest
 # import doctest
-from fffsat.tests import (test_utils, )
+from fffsat.tests import (test_utils,
+                          test_forest_fire)
 
 
 def suite():
@@ -21,5 +22,6 @@ def suite():
     # mysuite.addTests(doctest.DocTestSuite(image))
     # Use the unittests also
     mysuite.addTests(test_utils.suite())
+    mysuite.addTests(test_forest_fire.suite())
 
     return mysuite

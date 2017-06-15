@@ -11,3 +11,84 @@ item_4:
   42
 item_5:
   1.
+
+# Channel names
+vis_chan_name: 0.6
+nir_chan_name: 0.8
+mir_chan_name: 3.9
+ir1_chan_name: 10.8
+ir2_chan_name: 12.0
+sol_za_name: solar_zenith_angle
+sat_za_name: sensor_zenith_angle
+rel_az_name: sun_sensor_azimuth_difference_angle
+
+cloud_mask:
+  threshold: 30.0
+water_mask:
+  threshold: 30.0
+fcv_mask:
+  # From Planck et.al. 2017
+  threshold: 0.1
+swath_edge_mask:
+  # From Planck et.al. 2017
+  threshold: 40.0
+sun_glint_mask:
+  # From Planck et.al. 2017
+  angle_threshold_1: 5.0
+  angle_threshold_2: 15.0
+  nir_refl_threshold: 20.0
+
+# Exclusion limits for background pixels
+# MIR temperatures above this are invalid
+bg_mir_temp_limit: 318.
+# MIR - IR deltas above this are invalid
+bg_delta_mir_ir: 12.
+
+# Number and fraction of required valid background pixels
+bg_num_valid: 6
+bg_fraction_valid: .25
+
+# Side lengths for background pixel checks
+bg_side_lengths: [5, 7, 9, 11]
+
+# Temperature limits and deltas for different probability levels for
+# day and night cases
+probability_levels:
+  2:
+    name: low
+    day:
+      temp_mir: 310.
+      delta_mir_ir: 6.
+    night:
+      temp_mir: 308.
+      delta_mir_ir: 4.
+  3:
+    name: medium
+    day:
+      temp_mir: 311.
+      delta_mir_ir: 6.
+    night:
+      temp_mir: 309.
+      delta_mir_ir: 4.
+  4:
+    name: high
+    day:
+      temp_mir: 312.
+      delta_mir_ir: 4.
+    night:
+      temp_mir: 310.
+      delta_mir_ir: 4.
+
+mask_functions:
+  get_cloud_mask:
+    null
+  create_water_mask:
+    null
+  create_sun_glint_mask:
+    null
+  create_fcv_mask:
+    null
+  create_swath_edge_mask:
+    null
+
+sol_za_day_limit: 85.
