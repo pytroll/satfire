@@ -112,13 +112,11 @@ def get_idxs_around_location(row, col, side, remove_neighbours=False):
 
     y_idxs, x_idxs = np.meshgrid(y_idxs, x_idxs)
 
-    if remove_neighbours:
+    if remove_neighbours is True:
         mask = np.ones(y_idxs.shape, dtype=np.bool)
-        row_start = row - 1
-        row_end = row + 2
-        col_start = col - 1
-        col_end = col + 2
-        mask[row_start:row_end, col_start:col_end] = False
+        start = side / 2 - 1
+        end = start + 3
+        mask[start:end, start:end] = False
         y_idxs = y_idxs[mask]
         x_idxs = x_idxs[mask]
 
