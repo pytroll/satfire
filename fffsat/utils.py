@@ -77,6 +77,8 @@ def get_filenames_from_msg(msg, config):
 
 def read_sat_data(fname, channels):
     """Read satellite data"""
+    if not isinstance(fname, (list, set, tuple)):
+        fname = [fname, ]
     glbl = Scene(filenames=fname)
     glbl.load(channels)
 
