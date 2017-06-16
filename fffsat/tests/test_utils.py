@@ -63,11 +63,14 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(isinstance(config['item_4'], int))
 
     def test_get_filenames_from_msg(self):
-        cma_pattern = "S_NWC_CMA_{platform_name}_{orbit:5d}_{start_time:%Y%m%dT%H%M%S}{foo}Z_{end_time:%Y%m%dT%H%M%S}{bar}Z.nc"
-        l1b_pattern = "avhrr_{platform_name}_{start_time:%Y%m%d_%H%M}_{orbit}.l1b"
+        cma_pattern = "S_NWC_CMA_{platform_name}_{orbit:5d}_{start_time:" + \
+            "%Y%m%dT%H%M%S}{foo}Z_{end_time:%Y%m%dT%H%M%S}{bar}Z.nc"
+        l1b_pattern = "avhrr_{platform_name}_{start_time:%Y%m%d_%H%M}_" +\
+            "{orbit}.l1b"
         config = {"data_fname_pattern": l1b_pattern,
                   "cloud_mask_fname_pattern": cma_pattern}
-        cma_fname = "/tmp/S_NWC_CMA_noaa19_41474_20170224T1130341Z_20170224T1146098Z.nc"
+        cma_fname = "/tmp/S_NWC_CMA_noaa19_41474_20170224T1130341Z_" + \
+            "20170224T1146098Z.nc"
         l1b_fname = "/tmp/avhrr_metop01_20170612_0949_24560.l1b"
 
         # Both files
