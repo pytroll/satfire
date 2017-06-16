@@ -49,7 +49,7 @@ class ForestFire(object):
             self.cloud_mask = utils.read_cma(cma_fname)
 
         # Initial mask
-        self.mask = self.data[self.config["NIR_CHAN_NAME"]].mask.copy()
+        self.mask = self.data[self.config["nir_chan_name"]].mask.copy()
         # Apply all masks
         self.mask_data()
         # Find hotspots
@@ -57,7 +57,7 @@ class ForestFire(object):
 
     def save(self):
         """Save forest fires"""
-        pass
+        print self.fires
 
     def clean(self):
         """Cleanup after processing."""
