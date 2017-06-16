@@ -15,7 +15,6 @@ import sys
 import os.path
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 from fffsat.forest_fire import ForestFire
 from fffsat import utils
