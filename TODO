@@ -15,3 +15,4 @@ TODO:
 * Use probability levels from utils.py
 * Add night-time test data + test cases
 * Add unittests for utils.read_sat_data
+* Check swath start/end limits in get_background()
