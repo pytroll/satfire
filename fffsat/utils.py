@@ -75,14 +75,9 @@ def get_filenames_from_msg(msg, config):
     return sat_fname, cma_fname
 
 
-def read_sat_data(msg, channels):
+def read_sat_data(fname, channels):
     """Read satellite data"""
-    filenames = [itm["uri"] for itm in msg["collection"]]
-    glbl = Scene(platform_name=msg["platform_name"],
-                 sensor=msg["sensor"],
-                 start_time=msg["start_time"],
-                 end_time=msg["end_time"],
-                 filenames=filenames)
+    glbl = Scene(filenames=fname)
     glbl.load(channels)
 
     return glbl
