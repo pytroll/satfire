@@ -9,7 +9,7 @@ mask_functions:
     null
 
 # Channels to read
-channels_to_read:
+channels_to_load:
   - 0.6
   - 0.8
   - 3.9
