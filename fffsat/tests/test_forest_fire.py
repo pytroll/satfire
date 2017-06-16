@@ -201,6 +201,14 @@ class TestForestFire(unittest.TestCase):
         self.assertEqual(mir.size, 14)  # neighbours are removed, so size stays
         self.assertEqual(ir1.size, 14)  # the same
         self.assertEqual(quality, utils.QUALITY_LOW)
+        # Test that enough background pixels (number and fraction) are found
+        # Mask 5x5 area
+        self.fff.mask[:, :] = False
+        self.fff.mask[6:11, 6:11] = True
+        mir, ir1, quality = self.fff.get_background(8, 8)
+        self.assertEqual(mir.size, 24)
+        self.assertEqual(ir1.size, 24)
+        self.assertEqual(quality, utils.QUALITY_LOW)
         # Mask everything
         self.fff.mask[:, :] = True
         mir, ir1, quality = self.fff.get_background(8, 8)
