@@ -116,10 +116,38 @@ class TestForestFire(unittest.TestCase):
         # Original data contains no swath edges
         self.assertFalse(np.any(res))
         # Add artificial border area
-        self.fff.data[self.config["sat_za_name"]][0, :] = \
+        self.fff.data[self.config["sat_za_name"]][:, 0] = \
             self.config["swath_edge_mask"]["threshold"] + 1.
         res = self.fff.create_swath_edge_mask()
+        self.assertTrue(np.all(res[:, 0]))
+        self.fff.clean()
+
+    def test_create_swath_end_mask(self):
+        self.fff.data = read_sat_data(self.data_fname, self.config)
+        # Add initial mask
+        self.fff.mask = self.fff.data['mask'].copy()
+        # Get the mask length from config
+        length = self.config["swath_end_mask"]["threshold"]
+        res = self.fff.create_swath_end_mask()
         self.assertTrue(np.all(res[0, :]))
+        self.assertTrue(np.all(res[-1, :]))
+        self.assertTrue(np.sum(res[:, 0]) == (2 * length))
+        self.fff.clean()
+
+    def test_create_swath_masks(self):
+        self.fff.data = read_sat_data(self.data_fname, self.config)
+        # Add initial mask
+        self.fff.mask = self.fff.data['mask'].copy()
+        # Add artificial border area
+        self.fff.data[self.config["sat_za_name"]][:, 0] = \
+            self.config["swath_edge_mask"]["threshold"] + 1.
+        # Get the mask length from config
+        length = self.config["swath_end_mask"]["threshold"]
+        res = self.fff.create_swath_masks()
+        self.assertTrue(np.all(res[:, 0]))
+        self.assertTrue(np.all(res[0, :]))
+        self.assertTrue(np.all(res[-1, :]))
+        self.assertTrue(np.sum(res[:, 10]) == (2 * length))
         self.fff.clean()
 
     def test_create_sun_glint_mask(self):

@@ -159,6 +159,18 @@ class ForestFire(object):
         mask = sza > threshold
         return mask
 
+    def create_swath_end_mask(self):
+        """Create mask for the swath edges"""
+        length = self.config["swath_end_mask"]["threshold"]
+        mask = self.mask.copy()
+        mask[0:length, :] = True
+        mask[-length:, :] = True
+        return mask
+
+    def create_swath_masks(self):
+        """Create both swath edge and swath end masks"""
+        return (self.create_swath_edge_mask() | self.create_swath_end_mask())
+
     def create_cloud_mask(self):
         """Create cloud mask from satellite data."""
         # Planck et.al. 2017 eq. 2 - 4

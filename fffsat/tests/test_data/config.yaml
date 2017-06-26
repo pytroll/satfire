@@ -32,6 +32,8 @@ fcv_mask:
 swath_edge_mask:
   # From Planck et.al. 2017
   threshold: 40.0
+swath_end_mask:
+  threshold: 10
 sun_glint_mask:
   # From Planck et.al. 2017
   angle_threshold_1: 5.0

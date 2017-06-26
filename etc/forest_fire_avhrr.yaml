@@ -46,6 +46,9 @@ fcv_mask:
 swath_edge_mask:
   # From Planck et.al. 2017
   threshold: 40.0
+swath_end_mask:
+  # Mask (max(bg_side_lengts) - 1) / 2 pixels from both ends of the swath
+  swath_end_mask: 10
 water_mask:
   # First guess
   threshold: 30.0
