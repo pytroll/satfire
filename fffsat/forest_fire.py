@@ -216,12 +216,29 @@ class ForestFire(object):
                 # Global mask
                 np.invert(self.mask))
             rows, cols = np.nonzero(candidates)
-
+            # Remove invalid points using static masks
+            # Also updates self.mask
+            rows, cols = self.check_static_masks(rows, cols)
             for i in range(len(rows)):
                 quality = self.qualify_fires(rows[i], cols[i],
                                              is_day=day_mask[rows[i], cols[i]])
                 self.fires[(rows[i], cols[i])] = {'quality': quality,
                                                   'probability': lvl}
+
+    def check_static_masks(self, rows, columns):
+        """Mask data based on static masks. Return valid row and column
+        indices or two empty lists if no valid pixels exist.
+        """
+        try:
+            func_names = self.config["static_mask_functions"]
+        except KeyError:
+            self.logger.warning("No static masks defined")
+            return rows, columns
+
+        self.logger.info("Checking static masks")
+        idxs = utils.check_static_masks(func_names, rows, columns)
+        self.mask[rows[idxs], cols[idxs]] = True
+        return rows[np.invert(idxs)], cols[np.invert(idxs)]
 
     def qualify_fires(self, row, col, is_day=True):
         """Check if hotspot at [row, col] is a fire or not."""

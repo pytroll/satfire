@@ -2,11 +2,16 @@
 
 # Paths, masking configs, etc.
 
+# Masking functions that create masks from the satellite data or use
+# external products that are in satellite projection (eg. NWC SAF cloud mask)
 mask_functions:
-  get_land_cover_mask:
-    mask_file: foo.h5
   get_cloud_mask:
     null
+
+# Masking functions that apply auxiliary static data not in satellite projection
+static_mask_functions:
+  check_landcover:
+    globcover.h5
 
 # Channels to read
 channels_to_load:
