@@ -15,5 +15,14 @@ TODO:
 * Use probability levels from utils.py
 * Add night-time test data + test cases
 * Add unittests for utils.read_sat_data
-* Add unittests for forest_fire.ForestFire.check_aux_masks()
-* Add unittests for check_aux_masks()
+* Add unittests for forest_fire.ForestFire.check_static_masks()
+* Add unittests for utils.check_static_masks()
+
+* Static mask data
+  - save static masks as regular lon/lat grids with resolution and
+    center-point coordinates of the origin as attributes
+    -> pixel locations can be calculated analytically
+  - add function to calculate how many pixels are needed to cover the footprint
+    at the latitude in question
+  - Use HDF5 for storage and memmapping to reduce memory footprint when reading
+    mask data
