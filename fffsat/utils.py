@@ -137,3 +137,40 @@ def get_idxs_around_location(row, col, side, remove_neighbours=False):
         x_idxs = x_idxs[mask]
 
     return y_idxs.ravel(), x_idxs.ravel()
+
+
+def check_static_masks(logger, func_names, rows, columns):
+    """Check static masks"""
+    # Create placeholder for invalid row/col locations.  By default all
+    # pixels are valid (== False)
+    idxs = [False for row in rows]
+
+    # Run mask functions
+    for func_name in func_names:
+        try:
+            func = vars()[func_name]
+        except KeyError:
+            logger.error("No such function: utils.%s", func_name)
+            continue
+        try:
+            reader = vars()[func_names[func_name]['reader']]
+        except KeyError:
+            logger.error("No reader for %s", func_name)
+            continue
+        try:
+            filename = func_names[func_name]['filename']
+        except KeyError:
+            logger.error("No reader for %s", func_name)
+            continue
+
+        # Read mask data
+        data = reader(filename)
+        for i in range(len(idxs)):
+            # No need to mask already masked pixels
+            if idxs[i] is True:
+                continue
+            # Check if the location should be masked out
+            if func(data, rows[i], columns[i]):
+                idxs[i] = True
+
+    return idxs

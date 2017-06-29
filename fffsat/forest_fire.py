@@ -236,7 +236,7 @@ class ForestFire(object):
             return rows, columns
 
         self.logger.info("Checking static masks")
-        idxs = utils.check_static_masks(func_names, rows, columns)
+        idxs = utils.check_static_masks(self.logger, func_names, rows, columns)
         self.mask[rows[idxs], cols[idxs]] = True
         return rows[np.invert(idxs)], cols[np.invert(idxs)]
 
