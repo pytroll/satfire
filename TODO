@@ -19,10 +19,9 @@ TODO:
 * Add unittests for utils.check_static_masks()
 
 * Static mask data
-  - save static masks as regular lon/lat grids with resolution and
-    center-point coordinates of the origin as attributes
-    -> pixel locations can be calculated analytically
   - add function to calculate how many pixels are needed to cover the footprint
     at the latitude in question
   - Use HDF5 for storage and memmapping to reduce memory footprint when reading
     mask data
+  - check how to circumnavigate memmapping of compressed tiff files in
+    prepare_globcover.py
