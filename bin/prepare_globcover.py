@@ -18,6 +18,9 @@ GLOBCOVER_SOUTH_LAT_LIMIT = -65.
 GLOBCOVER_WEST_LON_LIMIT = -180.
 GLOBCOVER_EAST_LON_LIMIT = 180.
 
+# Mask values greater than or equal to this value
+GLOBCOVER_MASK_ABOVE = 190
+
 CROP_WEST_LON = 15.
 CROP_EAST_LON = 35.
 CROP_NORTH_LAT = 72.
@@ -79,6 +82,13 @@ def read_tif(fname):
     return img
 
 
+def create_binary_mask(data):
+    """Create a binary mask from the data.  Invalid areas are marked as
+    True.
+    """
+    return data >= GLOBCOVER_MASK_ABOVE
+
+
 def read_legend(fname):
     """Read legend from the given Excel file.  Return a 2-tuple
     (values, labels).
@@ -107,6 +117,10 @@ def save_to_hdf5(fname, data, lons, lats, legend):
     with h5py.File(fname, 'w') as fid:
         fid.create_dataset('data', data=data, compression=HDF5_COMPRESSION)
         fid['data'].attrs['description'] = "GLOBCOVER v2.3 data"
+        fid.create_dataset('mask', data=create_binary_mask(data),
+                           compression=HDF5_COMPRESSION)
+        fid['mask'].attrs['description'] = \
+            "Binary landcover mask. True values are invalid locations."
         fid['longitudes'] = lons
         fid['longitudes'].attrs['description'] = "Center of pixel longitudes"
         fid['latitudes'] = lats
