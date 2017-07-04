@@ -13,6 +13,7 @@ import yaml
 from collections import OrderedDict
 
 import numpy as np
+import h5py
 
 from satpy import Scene
 from trollsift import parse
@@ -30,6 +31,9 @@ QUALITY_HIGH = 4
 BOX_SIZE_TO_QUALITY = {3: QUALITY_LOW,
                        5: QUALITY_MEDIUM,
                        7: QUALITY_HIGH}
+
+# Earth radius
+R_EARTH = 6371.2200
 
 
 def ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
@@ -85,11 +89,6 @@ def read_sat_data(fname, channels):
     return glbl
 
 
-def read_land_cover():
-    """Read land cover exclusion mask"""
-    pass
-
-
 def read_cloud_mask():
     """Read cloud mask"""
     pass
@@ -139,11 +138,11 @@ def get_idxs_around_location(row, col, side, remove_neighbours=False):
     return y_idxs.ravel(), x_idxs.ravel()
 
 
-def check_static_masks(logger, func_names, rows, columns):
+def check_static_masks(logger, func_names, lats, lons, radii):
     """Check static masks"""
     # Create placeholder for invalid row/col locations.  By default all
     # pixels are valid (== False)
-    idxs = [False for row in rows]
+    idxs = [False for row in lats]
 
     # Run mask functions
     for func_name in func_names:
@@ -153,24 +152,61 @@ def check_static_masks(logger, func_names, rows, columns):
             logger.error("No such function: utils.%s", func_name)
             continue
         try:
-            reader = vars()[func_names[func_name]['reader']]
-        except KeyError:
-            logger.error("No reader for %s", func_name)
-            continue
-        try:
             filename = func_names[func_name]['filename']
         except KeyError:
             logger.error("No reader for %s", func_name)
             continue
 
-        # Read mask data
-        data = reader(filename)
-        for i in range(len(idxs)):
-            # No need to mask already masked pixels
-            if idxs[i] is True:
-                continue
-            # Check if the location should be masked out
-            if func(data, rows[i], columns[i]):
-                idxs[i] = True
+        # Mask data
+        idxs = func(filename, idxs, lats, lons, radii)
 
     return idxs
+
+
+def calc_footprint_size(sat_zens, ifov, sat_alt):
+    """Calculate approximate footprint sizes for the given satellite
+    zenith angles.  Return sizes in along-track and across-track directions."""
+    # Satellite co-zenith angles
+    sat_co_zens = np.radians(180. - sat_zens)
+    # Third term in the quadratic equation is same in all cases
+    c__ = -sat_alt * sat_alt - 2 * sat_alt * R_EARTH
+    # Cosine of satellite co-zenith angles
+    tmp = np.cos(sat_co_zens)
+    # Distance from satellite to ground in the view direction
+    look_dist = solve_quadratic(1., -2 * R_EARTH * tmp, c__)
+    # Footprint length in along-track direction
+    along_lengths = ifov * look_dist
+
+    # Footprint length in across-track direction
+    # Adjust angles by half of the IFOV
+    tmp = np.cos(sat_co_zens - ifov / 2.)
+    # Distance to "first" edge
+    a_look_dist = solve_quadratic(1., -2 * R_EARTH * tmp, c__)
+
+    # Adjust angles by half of the IFOV
+    tmp = np.cos(sat_co_zens + ifov / 2.)
+    # Distance to "second" edge
+    b_look_dist = solve_quadratic(1., -2 * R_EARTH * tmp, c__)
+
+    tmp = np.sin(sat_co_zens) / (sat_alt + R_EARTH)
+    # Distances to sub-satellite point along surface
+    a_ranges = R_EARTH * np.arcsin(a_look_dist * tmp)
+    b_ranges = R_EARTH * np.arcsin(b_look_dist * tmp)
+
+    across_lengths = np.abs(a_ranges - b_ranges)
+
+    return along_lengths, across_lengths
+
+
+def solve_quadratic(a__, b__, c__):
+    """Solve quadratic equation"""
+    discriminant = b__ * b__ - 4 * a__ * c__
+    with np.errstate(invalid='ignore'):
+        x_1 = (-b__ + np.sqrt(discriminant)) / (2 * a__)
+        x_2 = (-b__ - np.sqrt(discriminant)) / (2 * a__)
+
+    x__ = x_1.copy()
+    idxs = np.isnan(x_1)
+    x__[idxs] = x_2[idxs]
+
+    return x__

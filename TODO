@@ -17,5 +17,4 @@ TODO:
     at the latitude in question
   - Use HDF5 for storage and memmapping to reduce memory footprint when reading
     mask data
-  - calculate footprint size from sat_zen_angle
   - find mask pixels inside the footprint
