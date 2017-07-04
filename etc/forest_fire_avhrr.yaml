@@ -11,8 +11,6 @@ mask_functions:
 # Masking functions that apply auxiliary static data not in satellite projection
 static_mask_functions:
   check_landcover:
-    reader:
-      read_landcover
     filename:
       globcover.h5
 
