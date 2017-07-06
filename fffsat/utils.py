@@ -89,6 +89,33 @@ def read_sat_data(fname, channels):
     return glbl
 
 
+def check_globcover(fname, idxs, lonlats, footprints, settings):
+    """Check globcover mask."""
+    lons, lats = lonlats
+    along, across = footprints
+    with h5py.File(fname, 'r') as fid:
+        for i in range(len(idxs)):
+            # Skip already masked pixels
+            if idxs[i] is True:
+                continue
+            # Calculate mask pixel indices needed to cover satellite footprint
+            y_start, y_end, x_start, x_end, y_start, y_end = \
+                calc_footprint_indices(along[i], across[i], lats[i])
+
+            data = fid['data'].values[y_start:y_end, x_start:x_end]
+            # Check all different areatypes
+            for area_type in settings:
+                # Check if the location should be masked
+                mask = data == settings[area_type]['value']
+                ratio = float(mask.sum()) / float(mask.size)
+                if ratio > settings[area_type]['limit']:
+                    idxs[i] = True
+                    # No need to check the other areas if the pixel is masked
+                    break
+
+    return idxs
+
+
 def read_cloud_mask():
     """Read cloud mask"""
     pass
@@ -138,7 +165,7 @@ def get_idxs_around_location(row, col, side, remove_neighbours=False):
     return y_idxs.ravel(), x_idxs.ravel()
 
 
-def check_static_masks(logger, func_names, lats, lons, radii):
+def check_static_masks(logger, func_names, lonlats, footprints):
     """Check static masks"""
     # Create placeholder for invalid row/col locations.  By default all
     # pixels are valid (== False)
@@ -156,9 +183,14 @@ def check_static_masks(logger, func_names, lats, lons, radii):
         except KeyError:
             logger.error("No reader for %s", func_name)
             continue
+        try:
+            settings = func_names[func_name]['settings']
+        except KeyError:
+            logger.warning("No settings for %s", func_name)
+            settings = {}
 
         # Mask data
-        idxs = func(filename, idxs, lats, lons, radii)
+        idxs = func(filename, idxs, lonlats, footprints, settings)
 
     return idxs
 

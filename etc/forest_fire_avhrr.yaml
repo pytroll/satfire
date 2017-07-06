@@ -13,6 +13,22 @@ static_mask_functions:
   check_landcover:
     filename:
       globcover.h5
+    settings:
+      urban:
+        value: 190
+        limit: 0.2
+      bare:
+        value: 200
+        limit: 0.5
+      water:
+        value: 210
+        limit: 0.5
+      permanent_ice_or_snow:
+        value: 220
+        limit: 0.5
+      no_data:
+        value: 230
+        limit: 0.5
 
 # Channels to read
 channels_to_load:
