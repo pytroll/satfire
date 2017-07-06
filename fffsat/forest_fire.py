@@ -244,7 +244,7 @@ class ForestFire(object):
         lons = self.data[self.config["lon_name"]]
         self.logger.info("Checking static masks")
         idxs = utils.check_static_masks(self.logger, func_names,
-                                        lats[rows, cols], lons[rows, cols],
+                                        (lons[rows, cols], lats[rows, cols]),
                                         (along[rows, cols],
                                          across[rows, cols]))
         self.mask[rows[idxs], cols[idxs]] = True
