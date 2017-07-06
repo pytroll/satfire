@@ -93,13 +93,15 @@ def check_globcover(fname, idxs, lonlats, footprints, settings):
     """Check globcover mask."""
     lons, lats = lonlats
     along, across = footprints
+    max_swath_width = settings['max_swath_width']
     with h5py.File(fname, 'r') as fid:
         for i in range(len(idxs)):
             # Skip already masked pixels
             if idxs[i] is True:
                 continue
             # Get mask data that covers satellite footprint
-            data = get_footprint_data(fid, along[i], across[i], lats[i])
+            data = get_footprint_data(fid, along[i], across[i],
+                                      (lons[i], lats[i]), max_swath_width)
 
             # Check all different areatypes
             for area_type in settings:
@@ -112,6 +114,13 @@ def check_globcover(fname, idxs, lonlats, footprints, settings):
                     break
 
     return idxs
+
+
+def get_footprint_data(fid, along, across, lonlat, max_swath_width):
+    """Get mask data that covers the footprint centered at (lon, lat)"""
+    # For now, use average of along and across footprint diameters
+    # The difference for AVHRR is at most
+    pass
 
 
 def read_cloud_mask():
@@ -167,7 +176,7 @@ def check_static_masks(logger, func_names, lonlats, footprints):
     """Check static masks"""
     # Create placeholder for invalid row/col locations.  By default all
     # pixels are valid (== False)
-    idxs = [False for row in lats]
+    idxs = [False for row in lonlats[0]]
 
     # Run mask functions
     for func_name in func_names:
@@ -193,50 +202,55 @@ def check_static_masks(logger, func_names, lonlats, footprints):
     return idxs
 
 
-def calc_footprint_size(sat_zens, ifov, sat_alt):
+def calc_footprint_size(sat_zens, ifov, sat_alt, max_swath_width):
     """Calculate approximate footprint sizes for the given satellite
     zenith angles.  Return sizes in along-track and across-track directions."""
     # Satellite co-zenith angles
     sat_co_zens = np.radians(180. - sat_zens)
-    # Third term in the quadratic equation is same in all cases
+    # Third term in the quadratic equation
     c__ = -sat_alt * sat_alt - 2 * sat_alt * R_EARTH
-    # Cosine of satellite co-zenith angles
-    tmp = np.cos(sat_co_zens)
     # Distance from satellite to ground in the view direction
-    look_dist = solve_quadratic(1., -2 * R_EARTH * tmp, c__)
+    dist = solve_quadratic(1., -2 * R_EARTH * np.cos(sat_co_zens), c__)
     # Footprint length in along-track direction
-    along_lengths = ifov * look_dist
+    along_lengths = ifov * dist
 
-    # Footprint length in across-track direction
-    # Adjust angles by half of the IFOV
-    tmp = np.cos(sat_co_zens - ifov / 2.)
+    # Satellite view angle
+    sat_view = np.arcsin(R_EARTH * np.sin(sat_co_zens) / (R_EARTH + sat_alt))
+
+    # Calculate ground distances for both edges of the IFOV
+    # Third term in the quadratic equation is now positive
+    c__ *= -1
     # Distance to "first" edge
-    a_look_dist = solve_quadratic(1., -2 * R_EARTH * tmp, c__)
-
-    # Adjust angles by half of the IFOV
-    tmp = np.cos(sat_co_zens + ifov / 2.)
+    sat_view -= ifov / 2.
+    a_dist = solve_quadratic(1., -2 * (R_EARTH + sat_alt) * np.cos(sat_view),
+                             c__, limit=max_swath_width)
     # Distance to "second" edge
-    b_look_dist = solve_quadratic(1., -2 * R_EARTH * tmp, c__)
+    sat_view += ifov
+    b_dist = solve_quadratic(1., -2 * (R_EARTH + sat_alt) * np.cos(sat_view),
+                             c__, limit=max_swath_width)
 
     tmp = np.sin(sat_co_zens) / (sat_alt + R_EARTH)
     # Distances to sub-satellite point along surface
-    a_ranges = R_EARTH * np.arcsin(a_look_dist * tmp)
-    b_ranges = R_EARTH * np.arcsin(b_look_dist * tmp)
+    a_ranges = R_EARTH * np.arcsin(a_dist * tmp)
+    b_ranges = R_EARTH * np.arcsin(b_dist * tmp)
 
     across_lengths = np.abs(a_ranges - b_ranges)
 
     return along_lengths, across_lengths
 
 
-def solve_quadratic(a__, b__, c__):
+def solve_quadratic(a__, b__, c__, limit=None):
     """Solve quadratic equation"""
     discriminant = b__ * b__ - 4 * a__ * c__
-    with np.errstate(invalid='ignore'):
-        x_1 = (-b__ + np.sqrt(discriminant)) / (2 * a__)
-        x_2 = (-b__ - np.sqrt(discriminant)) / (2 * a__)
+    x_1 = (-b__ + np.sqrt(discriminant)) / (2 * a__)
+    x_2 = (-b__ - np.sqrt(discriminant)) / (2 * a__)
 
     x__ = x_1.copy()
     idxs = np.isnan(x_1)
     x__[idxs] = x_2[idxs]
+
+    if limit is not None:
+        idxs = x__ > limit
+        x__[idxs] = x_2[idxs]
 
     return x__
