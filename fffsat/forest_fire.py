@@ -235,8 +235,18 @@ class ForestFire(object):
             self.logger.warning("No static masks defined")
             return rows, columns
 
+        # Calculate footprint sizes
+        sat_za = self.data[self.config["sat_za_name"]]
+        ifov = self.config["ifov"]
+        sat_alt = self.config["satellite_altitude"]
+        along, across = utils.calc_footprint_size(sat_za, ifov, sat_alt)
+        lats = self.data[self.config["lat_name"]]
+        lons = self.data[self.config["lon_name"]]
         self.logger.info("Checking static masks")
-        idxs = utils.check_static_masks(self.logger, func_names, rows, columns)
+        idxs = utils.check_static_masks(self.logger, func_names,
+                                        lats[rows, cols], lons[rows, cols],
+                                        (along[rows, cols],
+                                         across[rows, cols]))
         self.mask[rows[idxs], cols[idxs]] = True
         return rows[np.invert(idxs)], cols[np.invert(idxs)]
 
