@@ -98,11 +98,9 @@ def check_globcover(fname, idxs, lonlats, footprints, settings):
             # Skip already masked pixels
             if idxs[i] is True:
                 continue
-            # Calculate mask pixel indices needed to cover satellite footprint
-            y_start, y_end, x_start, x_end, y_start, y_end = \
-                calc_footprint_indices(along[i], across[i], lats[i])
+            # Get mask data that covers satellite footprint
+            data = get_footprint_data(fid, along[i], across[i], lats[i])
 
-            data = fid['data'].values[y_start:y_end, x_start:x_end]
             # Check all different areatypes
             for area_type in settings:
                 # Check if the location should be masked
