@@ -36,6 +36,8 @@ ir2_chan_name: 12.0
 sol_za_name: solar_zenith_angle
 sat_za_name: sensor_zenith_angle
 rel_az_name: sun_sensor_azimuth_difference_angle
+lat_name: latitude
+lon_name: longitude
 
 # Mask configs
 
