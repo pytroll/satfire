@@ -14,6 +14,7 @@ static_mask_functions:
     filename:
       globcover.h5
     settings:
+      max_swath_width: 2000.
       urban:
         value: 190
         limit: 0.2
