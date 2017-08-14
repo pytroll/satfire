@@ -232,7 +232,7 @@ def calc_footprint_size(sat_zens, ifov, sat_alt, max_swath_width):
     sat_view += ifov
     b_dist = solve_quadratic(1., -2 * sat_radius * np.cos(sat_view),
                              c__, limit=max_swath_width)
-    b_ranges = R_EARTH * np.arcsin(a_dist * np.sin(sat_view) / R_EARTH)
+    b_ranges = R_EARTH * np.arcsin(b_dist * np.sin(sat_view) / R_EARTH)
 
     across_lengths = np.abs(a_ranges - b_ranges)
 
