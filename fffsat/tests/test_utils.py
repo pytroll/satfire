@@ -139,6 +139,19 @@ class TestUtils(unittest.TestCase):
         self.assertTrue((y_cor == y_res).all())
         self.assertTrue((x_cor == x_res).all())
 
+    def test_calc_footprint_size(self):
+        sat_zens = np.array([0, 68.5])
+        ifov = 1.4e-3
+        sat_alt = 830.
+        max_swath_width = 1446.58
+
+        along, across = utils.calc_footprint_size(sat_zens, ifov, sat_alt,
+                                                  max_swath_width)
+        self.assertAlmostEqual(along[0], 1.16, 2)
+        self.assertAlmostEqual(along[1], 2.46, 2)
+        self.assertAlmostEqual(across[0], 1.16, 2)
+        self.assertAlmostEqual(across[1], 6.70, 2)
+
 
 def suite():
     """The suite for test_utils
