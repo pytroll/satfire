@@ -19,5 +19,3 @@ TODO:
     mask data
   - find mask pixels inside the footprint
   - finalize globcover stuff
-  - find the error in calc_footprint_size:
-    * across-track distances are close to zero at nadir

@@ -207,6 +207,8 @@ def calc_footprint_size(sat_zens, ifov, sat_alt, max_swath_width):
     zenith angles.  Return sizes in along-track and across-track directions."""
     # Satellite co-zenith angles
     sat_co_zens = np.radians(180. - sat_zens)
+    # Satellite orbital radius
+    sat_radius = R_EARTH + sat_alt
     # Third term in the quadratic equation
     c__ = -sat_alt * sat_alt - 2 * sat_alt * R_EARTH
     # Distance from satellite to ground in the view direction
@@ -215,24 +217,22 @@ def calc_footprint_size(sat_zens, ifov, sat_alt, max_swath_width):
     along_lengths = ifov * dist
 
     # Satellite view angle
-    sat_view = np.arcsin(R_EARTH * np.sin(sat_co_zens) / (R_EARTH + sat_alt))
+    sat_view = np.arcsin(R_EARTH * np.sin(sat_co_zens) / sat_radius)
 
-    # Calculate ground distances for both edges of the IFOV
+    # Calculate along-view distances to both inner and outer edges of the IFOV
     # Third term in the quadratic equation is now positive
     c__ *= -1
-    # Distance to "first" edge
+    # Distance to inner edges of each IFOV
     sat_view -= ifov / 2.
-    a_dist = solve_quadratic(1., -2 * (R_EARTH + sat_alt) * np.cos(sat_view),
+    a_dist = solve_quadratic(1., -2 * sat_radius * np.cos(sat_view),
                              c__, limit=max_swath_width)
-    # Distance to "second" edge
-    sat_view += ifov
-    b_dist = solve_quadratic(1., -2 * (R_EARTH + sat_alt) * np.cos(sat_view),
-                             c__, limit=max_swath_width)
-
-    tmp = np.sin(sat_co_zens) / (sat_alt + R_EARTH)
     # Distances to sub-satellite point along surface
-    a_ranges = R_EARTH * np.arcsin(a_dist * tmp)
-    b_ranges = R_EARTH * np.arcsin(b_dist * tmp)
+    a_ranges = R_EARTH * np.arcsin(a_dist * np.sin(sat_view) / R_EARTH)
+    # Distance to outer edges of each IFOV
+    sat_view += ifov
+    b_dist = solve_quadratic(1., -2 * sat_radius * np.cos(sat_view),
+                             c__, limit=max_swath_width)
+    b_ranges = R_EARTH * np.arcsin(a_dist * np.sin(sat_view) / R_EARTH)
 
     across_lengths = np.abs(a_ranges - b_ranges)
 
