@@ -13,9 +13,9 @@ TODO:
 * Add unittests for utils.check_static_masks()
 
 * Static mask data
-  - add function to calculate how many pixels are needed to cover the footprint
-    at the latitude in question
   - Use HDF5 for storage and memmapping to reduce memory footprint when reading
     mask data
-  - find mask pixels inside the footprint
   - finalize globcover stuff
+  - add function to calculate how many pixels are needed to cover the footprint
+    at the latitude in question
+  - find mask pixels inside the footprint
