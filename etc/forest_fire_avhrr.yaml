@@ -131,5 +131,5 @@ bg_side_lengths: [5, 7, 9, 11, 13, 15, 17, 19, 21]
 # Approximate satellite orbital altitude, in km
 satellite_altitude: 833.
 
-# Instantaneous field of view (edge-to-edge) for one pixel, in mrad
+# Instantaneous field of view (edge-to-edge) for one pixel, in radians
 ifov: 1.4e-3
