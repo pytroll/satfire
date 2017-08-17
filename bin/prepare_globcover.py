@@ -13,6 +13,9 @@ from libtiff import TIFF
 GLOBCOVER_URL = "http://due.esrin.esa.int/files/Globcover2009_V2.3_Global_.zip"
 
 GLOBCOVER_RESOLUTION = 1. / 360.
+# Center-of-pixel coordinates.  The actual coordinates in the GeoTIFF are
+# relative to top-left corner, so there's a GLOBCOVER_RESOLOUTION/2th (1/720th)
+# of a degree difference
 GLOBCOVER_NORTH_LAT_LIMIT = 90.
 GLOBCOVER_SOUTH_LAT_LIMIT = -65.
 GLOBCOVER_WEST_LON_LIMIT = -180.
@@ -21,6 +24,7 @@ GLOBCOVER_EAST_LON_LIMIT = 180.
 # Mask values greater than or equal to this value
 GLOBCOVER_MASK_ABOVE = 190
 
+# Center-of-pixel coordinates for the cropped area
 CROP_WEST_LON = 15.
 CROP_EAST_LON = 35.
 CROP_NORTH_LAT = 72.
