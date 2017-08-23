@@ -152,6 +152,68 @@ class TestUtils(unittest.TestCase):
         self.assertAlmostEqual(across[0], 1.16, 2)
         self.assertAlmostEqual(across[1], 6.70, 2)
 
+    def test_haversine(self):
+        lon1, lat1 = 25., 60.
+        lon2, lat2 = 21.3, 68.3
+        dists, bearings = utils.haversine(lon1, lat1, lon2, lat2,
+                                          calc_bearings=True)
+        self.assertAlmostEqual(dists, 939.8, 1)
+        self.assertAlmostEqual(bearings, 350.66, 2)
+
+        lon1, lat1 = 0, 0
+        lon2, lat2 = 0, 90
+        dists, bearings = utils.haversine(lon1, lat1, lon2, lat2,
+                                          calc_bearings=True)
+        self.assertAlmostEqual(dists, 10007.9, 1)
+        self.assertAlmostEqual(bearings, 0.0, 1)
+
+        lon1, lat1 = 0, 0
+        lon2, lat2 = 90, 0
+        dists, bearings = utils.haversine(lon1, lat1, lon2, lat2,
+                                          calc_bearings=True)
+        self.assertAlmostEqual(dists, 10007.9, 1)
+        self.assertAlmostEqual(bearings, 90.0, 1)
+
+        lon1, lat1 = 0, 0
+        lon2, lat2 = -90, 0
+        dists, bearings = utils.haversine(lon1, lat1, lon2, lat2,
+                                          calc_bearings=True)
+        self.assertAlmostEqual(dists, 10007.9, 1)
+        self.assertAlmostEqual(bearings, 270.0, 1)
+
+        lon1, lat1 = 0, 0
+        lon2, lat2 = 0, -90
+        dists, bearings = utils.haversine(lon1, lat1, lon2, lat2,
+                                          calc_bearings=True)
+        self.assertAlmostEqual(dists, 10007.9, 1)
+        self.assertAlmostEqual(bearings, 180.0, 1)
+
+    def test_ensure_numpy(self):
+        res = utils.ensure_numpy(1, dtype=None)
+        self.assertTrue(isinstance(res, np.ndarray))
+        self.assertTrue(res.dtype == np.int64)
+        self.assertEqual(res[0], 1)
+
+        res = utils.ensure_numpy(1, dtype=np.float32)
+        self.assertTrue(isinstance(res, np.ndarray))
+        self.assertTrue(res.dtype == np.float32)
+        self.assertEqual(res[0], 1.0)
+
+        res = utils.ensure_numpy([1], dtype=np.float32)
+        self.assertTrue(isinstance(res, np.ndarray))
+        self.assertTrue(res.dtype == np.float32)
+        self.assertEqual(res[0], 1.0)
+
+        res = utils.ensure_numpy(np.array([1]), dtype=np.float32)
+        self.assertTrue(isinstance(res, np.ndarray))
+        self.assertTrue(res.dtype == np.float32)
+        self.assertEqual(res[0], 1.0)
+
+        res = utils.ensure_numpy(np.array(1), dtype=np.float32)
+        self.assertTrue(isinstance(res, np.ndarray))
+        self.assertTrue(res.dtype == np.float32)
+        self.assertEqual(res[0], 1.0)
+
 
 def suite():
     """The suite for test_utils
