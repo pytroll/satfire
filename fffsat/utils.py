@@ -93,15 +93,15 @@ def check_globcover(fname, idxs, lonlats, footprints, settings):
     """Check globcover mask."""
     lons, lats = lonlats
     along, across = footprints
-    max_swath_width = settings['max_swath_width']
+
     with h5py.File(fname, 'r') as fid:
         for i in range(len(idxs)):
             # Skip already masked pixels
             if idxs[i] is True:
                 continue
             # Get mask data that covers satellite footprint
-            data = get_footprint_data(fid, along[i], across[i],
-                                      (lons[i], lats[i]), max_swath_width)
+            max_radius = np.max(along[i], across[i]) / 2.
+            data = get_footprint_data(fid, max_radius, lons[i], lats[i])
 
             # Check all different areatypes
             for area_type in settings:
@@ -110,17 +110,83 @@ def check_globcover(fname, idxs, lonlats, footprints, settings):
                 ratio = float(mask.sum()) / float(mask.size)
                 if ratio > settings[area_type]['limit']:
                     idxs[i] = True
-                    # No need to check the other areas if the pixel is masked
+                    # No need to check other land cover types as the pixel
+                    # is already masked
                     break
 
     return idxs
 
 
-def get_footprint_data(fid, along, across, lonlat, max_swath_width):
-    """Get mask data that covers the footprint centered at (lon, lat)"""
-    # For now, use average of along and across footprint diameters
-    # The difference for AVHRR is at most
-    pass
+def get_footprint_data(fid, max_radius, lon, lat):
+    """Get mask data that covers the footprint centered at (lon, lat).
+    Circular footprint is assumed.
+    """
+    # Read mask coordinates, convert to 2D arrays
+    mask_lon, mask_lat = np.meshgrid(fid['longitudes'].value,
+                                     fid['latitudes'].value)
+
+    # Calculate approximate distance from nominal footprint location to all
+    # mask pixels.
+    dists, _ = haversine(lon, lat, mask_lon, mask_lat,
+                         calc_bearings=False)
+
+    # Find pixels that are within max_radius from the nominal location
+    idxs = dists <= max_radius
+
+    # Get the mask data for the reduced area
+    mask = fid['data'].value[idxs]
+
+    return mask
+
+
+def haversine(lon1, lat1, lon2, lat2, calc_bearings=False):
+    """Calculate Haversine distance and bearings from (lon1, lat2) to
+    (lon2, lat2).  Lon2/lat2 can be multidimensional arrays.  Lon1/lat1
+    need to have the same dimension with lon1/lat1 or be scalar."""
+
+    # Ensure coordinates are Numpy arrays
+    lon1 = ensure_numpy(lon1, dtype=np.float32)
+    lat1 = ensure_numpy(lat1, dtype=np.float32)
+    lon2 = ensure_numpy(lon2, dtype=np.float32)
+    lat2 = ensure_numpy(lat2, dtype=np.float32)
+
+    # Convert coordinates to radians
+    lon1, lat1, lon2, lat2 = map(np.radians, [lon1, lat1, lon2, lat2])
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a__ = np.sin(dlat / 2)**2 + np.cos(lat1) * \
+        np.cos(lat2) * np.sin(dlon / 2)**2
+    c__ = 2 * np.arcsin(np.sqrt(a__))
+
+    if calc_bearings:
+        dLon = lon2 - lon1
+        y__ = np.sin(dLon) * np.cos(lat2)
+        x__ = np.cos(lat1) * np.sin(lat2) - \
+            np.sin(lat1) * np.cos(lat2) * np.cos(dLon)
+        bearings = np.degrees(np.arctan2(y__, x__))
+        # Wrap negative angles to positives
+        bearings[bearings < 0] += 360
+    else:
+        bearings = None
+
+    return R_EARTH * c__, bearings
+
+
+def ensure_numpy(itm, dtype=None):
+    """Ensure the given item is an numpy array"""
+    if isinstance(itm, (int, float)):
+        itm = [itm]
+    if not isinstance(itm, np.ndarray):
+        itm = np.array(itm)
+    else:
+        if len(itm.shape) == 0:
+            itm = np.array([itm])
+
+    if dtype is not None:
+        itm = itm.astype(dtype)
+
+    return itm
 
 
 def read_cloud_mask():
