@@ -14,6 +14,7 @@ import sys
 from fffsat.utils import read_config
 from fffsat.forest_fire import ForestFire
 
+
 def main():
     config = read_config(sys.argv[1])
     sat_fname = sys.argv[2]
