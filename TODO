@@ -11,11 +11,5 @@ TODO:
 * Add unittests for utils.read_sat_data
 * Add unittests for forest_fire.ForestFire.check_static_masks()
 * Add unittests for utils.check_static_masks()
-
-* Static mask data
-  - Use HDF5 for storage and memmapping to reduce memory footprint when reading
-    mask data
-  - finalize globcover stuff
-  - add function to calculate how many pixels are needed to cover the footprint
-    at the latitude in question
-  - find mask pixels inside the footprint
+* Add unittests for utils.get_footprint_data()
+* Add unittests for utils.check_globcover()
