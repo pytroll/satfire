@@ -10,6 +10,8 @@
 """The main() script for FMI Forest Fire satellite software"""
 
 import sys
+import logging
+import logging.config
 
 from fffsat.utils import read_config
 from fffsat.forest_fire import ForestFire
@@ -22,7 +24,7 @@ def main():
         cma_fname = sys.argv[3]
     else:
         cma_fname = None
-
+    logging.config.dictConfig(config['standalone_log_config'])
     fff = ForestFire(config)
     fff.run(sat_fname=sat_fname, cma_fname=cma_fname)
     fff.save()
