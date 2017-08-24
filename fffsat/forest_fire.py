@@ -219,13 +219,14 @@ class ForestFire(object):
             # Remove invalid points using static masks
             # Also updates self.mask
             rows, cols = self.check_static_masks(rows, cols)
+
             for i in range(len(rows)):
                 quality = self.qualify_fires(rows[i], cols[i],
                                              is_day=day_mask[rows[i], cols[i]])
                 self.fires[(rows[i], cols[i])] = {'quality': quality,
                                                   'probability': lvl}
 
-    def check_static_masks(self, rows, columns):
+    def check_static_masks(self, rows, cols):
         """Mask data based on static masks. Return valid row and column
         indices or two empty lists if no valid pixels exist.
         """
@@ -239,7 +240,9 @@ class ForestFire(object):
         sat_za = self.data[self.config["sat_za_name"]]
         ifov = self.config["ifov"]
         sat_alt = self.config["satellite_altitude"]
-        along, across = utils.calc_footprint_size(sat_za, ifov, sat_alt)
+        along, across = \
+            utils.calc_footprint_size(sat_za, ifov, sat_alt,
+                                      self.config['max_swath_width'])
         lats = self.data[self.config["lat_name"]]
         lons = self.data[self.config["lon_name"]]
         self.logger.info("Checking static masks")
