@@ -8,6 +8,10 @@ TODO:
 
 * Use probability levels from utils.py
 
+* Pass landuse data (and any other relevant info) from static masks
+  - add "metadata" struct as return value to utils.check_static_masks
+    and the static mask functions
+
 TESTING:
 * Add night-time test data + test cases
 * Add unittests for utils.read_sat_data
