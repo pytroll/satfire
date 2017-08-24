@@ -81,7 +81,7 @@ class ForestFire(object):
         """Create and apply all masks"""
         logging.info("Masking data")
         for func_name in self.config["mask_functions"]:
-            logging.info("Apply 'func_name'.")
+            logging.info("Apply '%s'.", func_name)
             read_func = getattr(self, func_name)
             mask = read_func()
             self.apply_mask(mask)
@@ -202,34 +202,52 @@ class ForestFire(object):
         ir1 = self.data[self.config["ir1_chan_name"]]
         delta_mir_ir = mir - ir1
 
+        # Candidate mask, so that on the later probability levels there's
+        # no need to recheck static mask
+        candidate_mask = np.ones(self.mask.shape, dtype=np.bool)
+
         probs = self.config["probability_levels"]
         for lvl in probs:
+            logging.info("Probability level %d", lvl)
             day_mir = probs[lvl]["day"]["temp_mir"]
             day_mir_ir = probs[lvl]["day"]["delta_mir_ir"]
             night_mir = probs[lvl]["night"]["temp_mir"]
             night_mir_ir = probs[lvl]["night"]["delta_mir_ir"]
 
-            candidates = (
-                # Day side
-                (day_mask &
-                 (mir > day_mir) &
-                 (delta_mir_ir > day_mir_ir)) |
-                # Night side
-                (np.invert(day_mask) &
-                 (mir > night_mir) &
-                 (delta_mir_ir > night_mir_ir)) &
-                # Global mask
-                np.invert(self.mask))
+            day_candidates = (day_mask &
+                              (mir > day_mir) &
+                              (delta_mir_ir > day_mir_ir))
+            night_candidates = (np.invert(day_mask) &
+                                (mir > night_mir) &
+                                (delta_mir_ir > night_mir_ir))
+            candidates = ((day_candidates | night_candidates) &
+                          np.invert(self.mask) &
+                          candidate_mask)
+
+            logging.info("Initial candidates: %d", candidates.sum())
             rows, cols = np.nonzero(candidates)
+
+            # If there's no data, exit
+            if rows.size == 0:
+                logging.info("No candidates found.")
+                break
             # Remove invalid points using static masks
-            # Also updates self.mask
             rows, cols = self.check_static_masks(rows, cols)
+
+            # Update candidate mask
+            candidate_mask[:, :] = False
+            candidate_mask[rows, cols] = True
 
             for i in range(len(rows)):
                 quality = self.qualify_fires(rows[i], cols[i],
                                              is_day=day_mask[rows[i], cols[i]])
-                self.fires[(rows[i], cols[i])] = {'quality': quality,
-                                                  'probability': lvl}
+                self.fires[(rows[i], cols[i])] = \
+                    {'quality': quality,
+                     'probability': lvl,
+                     'latitude': self.data[self.config['lat_name']][rows[i],
+                                                                    cols[i]],
+                     'longitude': self.data[self.config['lon_name']][rows[i],
+                                                                     cols[i]]}
 
     def check_static_masks(self, rows, cols):
         """Mask data based on static masks. Return valid row and column
