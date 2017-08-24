@@ -312,6 +312,8 @@ def read_sat_data(fname, config):
         data[config['sol_za_name']] = np.ma.masked_where(mask, fid['sol_za'])
         data[config['sat_za_name']] = np.ma.masked_where(mask, fid['sat_za'])
         data[config['rel_az_name']] = np.ma.masked_where(mask, fid['rel_az'])
+        data[config['lat_name']] = np.ma.masked_where(mask, fid['lat'])
+        data[config['lon_name']] = np.ma.masked_where(mask, fid['lon'])
         data['mask'] = mask
 
     return data
