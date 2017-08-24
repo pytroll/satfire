@@ -257,7 +257,7 @@ class ForestFire(object):
             func_names = self.config["static_mask_functions"]
         except KeyError:
             self.logger.warning("No static masks defined")
-            return rows, columns
+            return rows, cols
 
         # Calculate footprint sizes
         sat_za = self.data[self.config["sat_za_name"]]
