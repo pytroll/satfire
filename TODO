@@ -7,6 +7,8 @@ TODO:
   - fileformat(s)?
 
 * Use probability levels from utils.py
+
+TESTING:
 * Add night-time test data + test cases
 * Add unittests for utils.read_sat_data
 * Add unittests for forest_fire.ForestFire.check_static_masks()
