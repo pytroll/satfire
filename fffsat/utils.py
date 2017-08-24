@@ -8,6 +8,7 @@
 #   Panu Lahtinen <panu.lahtinen@fmi.fi>
 """Utility functions for FFFsat"""
 
+import logging
 import os.path
 import yaml
 from collections import OrderedDict
@@ -94,14 +95,48 @@ def check_globcover(fname, idxs, lonlats, footprints, settings):
     lons, lats = lonlats
     along, across = footprints
 
+    masked_num = idxs.sum()
+
+    logging.info("Apply Globcover masking")
     with h5py.File(fname, 'r') as fid:
+        # Read mask coordinates and mask data
+        mask_lon_v = fid['longitudes'].value
+        mask_lat_v = fid['latitudes'].value
+        full_mask = fid['data'].value
+        mask_resolution = np.abs(mask_lon_v[1] - mask_lon_v[0])
+
+        # Convert coordinates to 2D arrays
+        mask_lon, mask_lat = np.meshgrid(mask_lon_v, mask_lat_v)
+
+        mask_lon_min, mask_lon_max = np.min(mask_lon_v), np.max(mask_lon_v)
+        mask_lat_min, mask_lat_max = np.min(mask_lat_v), np.max(mask_lat_v)
+
+        # Remove locations outside the mask area
+        out_idxs = ((lons > mask_lon_max) |
+                    (lons < mask_lon_min) |
+                    (lats > mask_lat_max) |
+                    (lats < mask_lat_min))
+        idxs[out_idxs] = True
+        logging.info("%d candidates removed outside Globcover area",
+                     idxs.sum() - masked_num)
+        masked_num = idxs.sum()
+
         for i in range(len(idxs)):
             # Skip already masked pixels
             if idxs[i] is True:
                 continue
+
+            # Reduce mask size
+            close_idxs = get_close_idxs(mask_lon_v, mask_lat_v,
+                                        mask_resolution,
+                                        lons[i], lats[i])
+
             # Get mask data that covers satellite footprint
             max_radius = np.max((along[i], across[i])) / 2.
-            data = get_footprint_data(fid, max_radius, lons[i], lats[i])
+            data = get_footprint_data(full_mask[close_idxs],
+                                      mask_lon[close_idxs],
+                                      mask_lat[close_idxs],
+                                      max_radius, lons[i], lats[i])
             # If there's no data, we are outside of the mask thus discard this
             # point
             if data.size == 0:
@@ -119,17 +154,28 @@ def check_globcover(fname, idxs, lonlats, footprints, settings):
                     # is already masked
                     break
 
+    logging.info("Removed %d candidates based on landuse",
+                 idxs.sum() - masked_num)
+    logging.info("Globcover masking completed.")
+
     return idxs
 
 
-def get_footprint_data(fid, max_radius, lon, lat):
+def get_close_idxs(mask_lons, mask_lats, mask_resolution, lon, lat):
+    """Find close indexes"""
+    lon_origin = mask_lons[0]
+    lat_origin = mask_lats[0]
+    lon_idx = int((lon - lon_origin) / mask_resolution)
+    lat_idx = int((lat_origin - lat) / mask_resolution)
+
+    # Return Numpy slice objects, 40x80 pixels around the nominal location
+    return np.s_[lat_idx - 20:lat_idx + 20, lon_idx - 40:lon_idx + 40]
+
+
+def get_footprint_data(data, mask_lon, mask_lat, max_radius, lon, lat):
     """Get mask data that covers the footprint centered at (lon, lat).
     Circular footprint is assumed.
     """
-    # Read mask coordinates, convert to 2D arrays
-    mask_lon, mask_lat = np.meshgrid(fid['longitudes'].value,
-                                     fid['latitudes'].value)
-
     # Calculate approximate distance from nominal footprint location to all
     # mask pixels.
     dists, _ = haversine(lon, lat, mask_lon, mask_lat,
@@ -139,7 +185,7 @@ def get_footprint_data(fid, max_radius, lon, lat):
     idxs = dists <= max_radius
 
     # Get the mask data for the reduced area
-    mask = fid['data'].value[idxs]
+    mask = data[idxs]
 
     return mask
 
@@ -247,7 +293,7 @@ def check_static_masks(logger, func_names, lonlats, footprints):
     """Check static masks"""
     # Create placeholder for invalid row/col locations.  By default all
     # pixels are valid (== False)
-    idxs = [False for row in lonlats[0]]
+    idxs = np.array([False for row in lonlats[0]])
 
     # Run mask functions
     for func_name in func_names:
