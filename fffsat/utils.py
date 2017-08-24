@@ -100,8 +100,13 @@ def check_globcover(fname, idxs, lonlats, footprints, settings):
             if idxs[i] is True:
                 continue
             # Get mask data that covers satellite footprint
-            max_radius = np.max(along[i], across[i]) / 2.
+            max_radius = np.max((along[i], across[i])) / 2.
             data = get_footprint_data(fid, max_radius, lons[i], lats[i])
+            # If there's no data, we are outside of the mask thus discard this
+            # point
+            if data.size == 0:
+                idxs[i] = True
+                continue
 
             # Check all different areatypes
             for area_type in settings:
@@ -247,7 +252,7 @@ def check_static_masks(logger, func_names, lonlats, footprints):
     # Run mask functions
     for func_name in func_names:
         try:
-            func = vars()[func_name]
+            func = globals()[func_name]
         except KeyError:
             logger.error("No such function: utils.%s", func_name)
             continue
