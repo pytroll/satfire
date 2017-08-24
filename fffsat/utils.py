@@ -293,7 +293,7 @@ def check_static_masks(logger, func_names, lonlats, footprints):
     """Check static masks"""
     # Create placeholder for invalid row/col locations.  By default all
     # pixels are valid (== False)
-    idxs = np.array([False for row in lonlats[0]])
+    idxs = np.array([False for row in lonlats[0]], dtype=np.bool)
 
     # Run mask functions
     for func_name in func_names:
