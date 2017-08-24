@@ -7,14 +7,22 @@
 mask_functions:
   get_cloud_mask:
     null
+  create_swath_masks:
+    null
+  create_water_mask:
+    null
+  create_sun_glint_mask:
+    null
+  create_fcv_mask:
+    null
+
 
 # Masking functions that apply auxiliary static data not in satellite projection
 static_mask_functions:
-  check_landcover:
+  check_globcover:
     filename:
       globcover.h5
     settings:
-      max_swath_width: 2000.
       urban:
         value: 190
         limit: 0.2
@@ -73,7 +81,7 @@ swath_edge_mask:
   threshold: 40.0
 swath_end_mask:
   # Mask (max(bg_side_lengts) - 1) / 2 pixels from both ends of the swath
-  swath_end_mask: 10
+  threshold: 10
 water_mask:
   # First guess
   threshold: 30.0
@@ -133,3 +141,33 @@ satellite_altitude: 833.
 
 # Instantaneous field of view (edge-to-edge) for one pixel, in radians
 ifov: 1.4e-3
+
+# Maximum width of the satellite swath (from sub-satellite to swath edge)
+max_swath_width: 2000.
+
+standalone_log_config:
+  version: 1
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: DEBUG
+      formatter: simple
+      stream: ext://sys.stdout
+    file:
+      class: logging.handlers.TimedRotatingFileHandler
+      level: DEBUG
+      formatter: simple
+      filename: /tmp/fffsat.log
+      backupCount: 7
+      when: midnight
+      utc: True
+  formatters:
+    simple:
+      format: "[%(levelname)s: %(asctime)s] %(message)s"
+  loggers:
+    '':
+      handlers:
+        - console
+        - file
+      level: DEBUG
+      propagate: True
