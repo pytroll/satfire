@@ -43,9 +43,11 @@ class ForestFire(object):
         if sat_fname is None:
             self.logger.critical("No satellite data in message")
             return False
+        logging.info("Reading satellite data")
         self.data = utils.read_sat_data(sat_fname,
                                         self.config["channels_to_load"])
         if cma_fname is not None:
+            logging.info("Reading PPS cloud mask")
             self.cloud_mask = utils.read_cma(cma_fname)
 
         # Initial mask
@@ -53,6 +55,7 @@ class ForestFire(object):
         # Apply all masks
         self.mask_data()
         # Find hotspots
+        logging.info("Finding forest fire candidates")
         self.find_hotspots()
 
     def save(self):
@@ -76,7 +79,9 @@ class ForestFire(object):
 
     def mask_data(self):
         """Create and apply all masks"""
+        logging.info("Masking data")
         for func_name in self.config["mask_functions"]:
+            logging.info("Apply 'func_name'.")
             read_func = getattr(self, func_name)
             mask = read_func()
             self.apply_mask(mask)
