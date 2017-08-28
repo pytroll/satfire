@@ -17,6 +17,7 @@ import os.path
 import numpy as np
 
 from fffsat.forest_fire import ForestFire
+from fffsat import forest_fire
 from fffsat import utils
 
 if sys.version_info < (2, 7):
@@ -203,31 +204,31 @@ class TestForestFire(unittest.TestCase):
         mir, ir1, quality = self.fff.get_background(8, 8)
         self.assertEqual(mir.size, 16)
         self.assertEqual(ir1.size, 16)
-        self.assertEqual(quality, utils.QUALITY_HIGH)
+        self.assertEqual(quality, forest_fire.QUALITY_HIGH)
         # Set one pixel masked inside 6x6 box
         self.fff.mask[11, 11] = True
         mir, ir1, quality = self.fff.get_background(8, 8)
         self.assertEqual(mir.size, 16)
         self.assertEqual(ir1.size, 16)
-        self.assertEqual(quality, utils.QUALITY_HIGH)
+        self.assertEqual(quality, forest_fire.QUALITY_HIGH)
         # Set one pixel masked inside 5x5 box
         self.fff.mask[10, 10] = True
         mir, ir1, quality = self.fff.get_background(8, 8)
         self.assertEqual(mir.size, 15)
         self.assertEqual(ir1.size, 15)
-        self.assertEqual(quality, utils.QUALITY_MEDIUM)
+        self.assertEqual(quality, forest_fire.QUALITY_MEDIUM)
         # Set another pixel masked inside 5x5 box
         self.fff.mask[9, 10] = True
         mir, ir1, quality = self.fff.get_background(8, 8)
         self.assertEqual(mir.size, 14)
         self.assertEqual(ir1.size, 14)
-        self.assertEqual(quality, utils.QUALITY_MEDIUM)
+        self.assertEqual(quality, forest_fire.QUALITY_MEDIUM)
         # Set one pixel masked inside 3x3 box
         self.fff.mask[9, 9] = True
         mir, ir1, quality = self.fff.get_background(8, 8)
         self.assertEqual(mir.size, 14)  # neighbours are removed, so size stays
         self.assertEqual(ir1.size, 14)  # the same
-        self.assertEqual(quality, utils.QUALITY_LOW)
+        self.assertEqual(quality, forest_fire.QUALITY_LOW)
         # Test that enough background pixels (number and fraction) are found
         # Mask 5x5 area
         self.fff.mask[:, :] = False
@@ -235,7 +236,7 @@ class TestForestFire(unittest.TestCase):
         mir, ir1, quality = self.fff.get_background(8, 8)
         self.assertEqual(mir.size, 24)
         self.assertEqual(ir1.size, 24)
-        self.assertEqual(quality, utils.QUALITY_LOW)
+        self.assertEqual(quality, forest_fire.QUALITY_LOW)
         # Mask everything
         self.fff.mask[:, :] = True
         mir, ir1, quality = self.fff.get_background(8, 8)
@@ -243,7 +244,7 @@ class TestForestFire(unittest.TestCase):
         self.assertIsNone(ir1)
         # Quality is "low", but it'll be changed to "not fire" in
         # qualify_fires() because there were no valid data
-        self.assertEqual(quality, utils.QUALITY_LOW)
+        self.assertEqual(quality, forest_fire.QUALITY_LOW)
         self.fff.clean()
 
     def test_qualify_fires(self):
@@ -251,19 +252,19 @@ class TestForestFire(unittest.TestCase):
         self.fff.mask = self.fff.data['mask'].copy()
         # Water should not be on fire
         res = self.fff.qualify_fires(8, 8, is_day=True)
-        self.assertEqual(res, utils.QUALITY_NOT_FIRE)
+        self.assertEqual(res, forest_fire.QUALITY_NOT_FIRE)
         # Set water on fire
         self.fff.data[self.config["mir_chan_name"]][8, 8] = 340.
         res = self.fff.qualify_fires(8, 8, is_day=True)
-        self.assertEqual(res, utils.QUALITY_HIGH)
+        self.assertEqual(res, forest_fire.QUALITY_HIGH)
         # Fire on the ground
         self.fff.data[self.config["mir_chan_name"]][15, 33] = 340.
         res = self.fff.qualify_fires(15, 33, is_day=True)
-        self.assertEqual(res, utils.QUALITY_HIGH)
+        self.assertEqual(res, forest_fire.QUALITY_HIGH)
         # Mask everything
         self.fff.mask[:, :] = True
         res = self.fff.qualify_fires(15, 33, is_day=True)
-        self.assertEqual(res, utils.QUALITY_UNKNOWN)
+        self.assertEqual(res, forest_fire.QUALITY_UNKNOWN)
         # TODO: add night-time tests
         self.fff.clean()
 
@@ -292,9 +293,12 @@ class TestForestFire(unittest.TestCase):
         self.fff.find_hotspots()
         self.assertEqual(len(self.fff.fires), 1)
         for key in self.fff.fires:
-            self.assertEqual(self.fff.fires[key]['quality'],
-                             utils.QUALITY_HIGH)
-            self.assertEqual(self.fff.fires[key]['probability'], 4)
+            self.assertEqual(
+                self.fff.fires[key]['quality'],
+                forest_fire.QUALITY_NAMES[forest_fire.QUALITY_HIGH])
+            self.assertEqual(
+                self.fff.fires[key]['probability'],
+                forest_fire.QUALITY_NAMES[forest_fire.QUALITY_HIGH])
         self.fff.clean()
 
 
