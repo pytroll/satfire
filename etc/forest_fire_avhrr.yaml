@@ -52,6 +52,9 @@ channels_to_load:
   - sensor_zenith_angle
   - sun_sensor_azimuth_difference_angle
 
+# Satpy reader
+satpy_reader: aapp_l1b
+
 # Channel names
 vis_chan_name: 0.6
 nir_chan_name: 0.8
