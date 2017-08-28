@@ -19,20 +19,6 @@ import h5py
 from satpy import Scene
 from trollsift import parse
 
-PROBABILITY_LOW = 2
-PROBABILITY_MEDIUM = 3
-PROBABILITY_HIGH = 4
-
-QUALITY_NOT_FIRE = 0
-QUALITY_UNKNOWN = 1
-QUALITY_LOW = 2
-QUALITY_MEDIUM = 3
-QUALITY_HIGH = 4
-
-BOX_SIZE_TO_QUALITY = {3: QUALITY_LOW,
-                       5: QUALITY_MEDIUM,
-                       7: QUALITY_HIGH}
-
 # Earth radius
 R_EARTH = 6371.2200
 
@@ -80,17 +66,17 @@ def get_filenames_from_msg(msg, config):
     return sat_fname, cma_fname
 
 
-def read_sat_data(fname, channels):
+def read_sat_data(fname, channels, reader):
     """Read satellite data"""
     if not isinstance(fname, (list, set, tuple)):
         fname = [fname, ]
-    glbl = Scene(filenames=fname)
+    glbl = Scene(filenames=fname, reader=reader)
     glbl.load(channels)
 
     return glbl
 
 
-def check_globcover(fname, idxs, lonlats, footprints, settings):
+def check_globcover(fname, idxs, lonlats, footprints, settings, metadata):
     """Check globcover mask."""
     lons, lats = lonlats
     along, across = footprints
@@ -133,6 +119,7 @@ def check_globcover(fname, idxs, lonlats, footprints, settings):
 
             # Get mask data that covers satellite footprint
             max_radius = np.max((along[i], across[i])) / 2.
+            metadata[i]['footprint_radius'] = max_radius
             data = get_footprint_data(full_mask[close_idxs],
                                       mask_lon[close_idxs],
                                       mask_lat[close_idxs],
@@ -148,17 +135,15 @@ def check_globcover(fname, idxs, lonlats, footprints, settings):
                 # Check if the location should be masked
                 mask = data == settings[area_type]['value']
                 ratio = float(mask.sum()) / float(mask.size)
+                metadata[i]['landuse_fraction_' + area_type] = ratio
                 if ratio > settings[area_type]['limit']:
                     idxs[i] = True
-                    # No need to check other land cover types as the pixel
-                    # is already masked
-                    break
 
     logging.info("Removed %d candidates based on landuse",
                  idxs.sum() - masked_num)
     logging.info("Globcover masking completed.")
 
-    return idxs
+    return idxs, metadata
 
 
 def get_close_idxs(mask_lons, mask_lats, mask_resolution, lon, lat):
@@ -294,6 +279,7 @@ def check_static_masks(logger, func_names, lonlats, footprints):
     # Create placeholder for invalid row/col locations.  By default all
     # pixels are valid (== False)
     idxs = np.array([False for row in lonlats[0]], dtype=np.bool)
+    metadata = np.array([{} for i in lonlats[0]])
 
     # Run mask functions
     for func_name in func_names:
@@ -314,9 +300,10 @@ def check_static_masks(logger, func_names, lonlats, footprints):
             settings = {}
 
         # Mask data
-        idxs = func(filename, idxs, lonlats, footprints, settings)
+        idxs, metadata = func(filename, idxs, lonlats, footprints, settings,
+                              metadata)
 
-    return idxs
+    return idxs, metadata
 
 
 def calc_footprint_size(sat_zens, ifov, sat_alt, max_swath_width):

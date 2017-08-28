@@ -13,6 +13,30 @@ import numpy as np
 
 from fffsat import utils
 
+PROBABILITY_LOW = 2
+PROBABILITY_MEDIUM = 3
+PROBABILITY_HIGH = 4
+
+QUALITY_NOT_FIRE = 0
+QUALITY_UNKNOWN = 1
+QUALITY_LOW = 2
+QUALITY_MEDIUM = 3
+QUALITY_HIGH = 4
+
+BOX_SIZE_TO_QUALITY = {3: QUALITY_LOW,
+                       5: QUALITY_MEDIUM,
+                       7: QUALITY_HIGH}
+
+PROBABILITY_NAMES = {PROBABILITY_LOW: "low",
+                     PROBABILITY_MEDIUM: "medium",
+                     PROBABILITY_HIGH: "high"}
+
+QUALITY_NAMES = {QUALITY_NOT_FIRE: "not fire",
+                 QUALITY_UNKNOWN: "unkown",
+                 QUALITY_LOW: "low",
+                 QUALITY_MEDIUM: "medium",
+                 QUALITY_HIGH: "high"}
+
 
 class ForestFire(object):
 
@@ -45,7 +69,8 @@ class ForestFire(object):
             return False
         logging.info("Reading satellite data")
         self.data = utils.read_sat_data(sat_fname,
-                                        self.config["channels_to_load"])
+                                        self.config["channels_to_load"],
+                                        reader=self.config["satpy_reader"])
         if cma_fname is not None:
             logging.info("Reading PPS cloud mask")
             self.cloud_mask = utils.read_cma(cma_fname)
@@ -57,6 +82,14 @@ class ForestFire(object):
         # Find hotspots
         logging.info("Finding forest fire candidates")
         self.find_hotspots()
+        # Collect satellite data for the forest fire candidates
+        self.collect_sat_data()
+
+    def collect_sat_data(self):
+        """Collect satellite data for each forest fire candidate"""
+        for row, col in self.fires:
+            for chan in self.config['channels_to_load']:
+                self.fires[(row, col)][chan] = self.data[chan][row, col]
 
     def save(self):
         """Save forest fires"""
@@ -232,7 +265,7 @@ class ForestFire(object):
                 logging.info("No candidates found.")
                 break
             # Remove invalid points using static masks
-            rows, cols = self.check_static_masks(rows, cols)
+            rows, cols, metadata = self.check_static_masks(rows, cols)
 
             # Update candidate mask
             candidate_mask[:, :] = False
@@ -242,12 +275,13 @@ class ForestFire(object):
                 quality = self.qualify_fires(rows[i], cols[i],
                                              is_day=day_mask[rows[i], cols[i]])
                 self.fires[(rows[i], cols[i])] = \
-                    {'quality': quality,
-                     'probability': lvl,
+                    {'quality': QUALITY_NAMES[quality],
+                     'probability': PROBABILITY_NAMES[lvl],
                      'latitude': self.data[self.config['lat_name']][rows[i],
                                                                     cols[i]],
                      'longitude': self.data[self.config['lon_name']][rows[i],
                                                                      cols[i]]}
+                self.fires[(rows[i], cols[i])].update(metadata[i])
 
     def check_static_masks(self, rows, cols):
         """Mask data based on static masks. Return valid row and column
@@ -269,12 +303,14 @@ class ForestFire(object):
         lats = self.data[self.config["lat_name"]]
         lons = self.data[self.config["lon_name"]]
         self.logger.info("Checking static masks")
-        idxs = utils.check_static_masks(self.logger, func_names,
-                                        (lons[rows, cols], lats[rows, cols]),
-                                        (along[rows, cols],
-                                         across[rows, cols]))
+        idxs, metadata = utils.check_static_masks(self.logger, func_names,
+                                                  (lons[rows, cols], lats[
+                                                   rows, cols]),
+                                                  (along[rows, cols],
+                                                   across[rows, cols]))
         self.mask[rows[idxs], cols[idxs]] = True
-        return rows[np.invert(idxs)], cols[np.invert(idxs)]
+        return (rows[np.invert(idxs)], cols[np.invert(idxs)],
+                metadata[np.invert(idxs)])
 
     def qualify_fires(self, row, col, is_day=True):
         """Check if hotspot at [row, col] is a fire or not."""
@@ -282,7 +318,7 @@ class ForestFire(object):
         # [row, col]
         mir_bg, ir1_bg, quality = self.get_background(row, col)
         if mir_bg is None or ir1_bg is None:
-            return utils.QUALITY_UNKNOWN
+            return QUALITY_UNKNOWN
 
         mir = self.data[self.config["mir_chan_name"]][row, col]
         ir1 = self.data[self.config["ir1_chan_name"]][row, col]
@@ -299,12 +335,12 @@ class ForestFire(object):
                     (ir1 > mean_ir1_bg + mad_ir1_bg - 3.)):
                 return quality
             else:
-                return utils.QUALITY_NOT_FIRE
+                return QUALITY_NOT_FIRE
         else:
             if (diff_mir_ir1 > mean_diff_bg + mad_diff_bg):
                 return quality
             else:
-                return utils.QUALITY_NOT_FIRE
+                return QUALITY_NOT_FIRE
 
     def get_background(self, row, col):
         """Get background data around pixel location [row, col] for MIR and
@@ -329,12 +365,12 @@ class ForestFire(object):
         mask_out = None
         mir_out = None
         ir1_out = None
-        quality = utils.QUALITY_UNKNOWN
+        quality = QUALITY_UNKNOWN
 
         # Sample different background areas until enough valid data are found
         for side in sides:
             # Stop looping if everything is ready
-            if mask_out is not None and quality > utils.QUALITY_UNKNOWN:
+            if mask_out is not None and quality > QUALITY_UNKNOWN:
                 break
 
             # Get indices for the surrounding side x side area
@@ -358,11 +394,11 @@ class ForestFire(object):
             mask[potential_fires] = True
 
             # Check if there are masked pixels inside this box
-            if quality == utils.QUALITY_UNKNOWN:
+            if quality == QUALITY_UNKNOWN:
                 if np.any(mask) or side > 5:
                     quality = \
-                        utils.BOX_SIZE_TO_QUALITY.get(side,
-                                                      utils.QUALITY_HIGH)
+                        BOX_SIZE_TO_QUALITY.get(side,
+                                                QUALITY_HIGH)
 
             # Find background only for boxes larger than 3x3 pixels
             if side > 3 and mask_out is None:
