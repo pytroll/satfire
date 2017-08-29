@@ -188,6 +188,13 @@ class TestUtils(unittest.TestCase):
         self.assertAlmostEqual(dists, 10007.9, 1)
         self.assertAlmostEqual(bearings, 180.0, 1)
 
+        lon1, lat1 = 0, 0
+        lon2, lat2 = 0, -90
+        dists, bearings = utils.haversine(lon1, lat1, lon2, lat2,
+                                          calc_bearings=False)
+        self.assertAlmostEqual(dists, 10007.9, 1)
+        self.assertIsNone(bearings)
+
     def test_ensure_numpy(self):
         res = utils.ensure_numpy(1, dtype=None)
         self.assertTrue(isinstance(res, np.ndarray))
