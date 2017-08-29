@@ -18,7 +18,7 @@ TESTING:
 * Add unittests for forest_fire.ForestFire.check_static_masks()
 * Add unittests for forest_fire.ForestFire.run()
 * Add unittests for forest_fire.ForestFire.collect_sat_data()
-* Add unittests for forest_fire.ForestFire.save()
+* Add unittests for forest_fire.ForestFire.save_text()
 * Add unittests for forest_fire.ForestFire.get_land_cover_mask()
 * Add unittests for forest_fire.ForestFire.get_snow_mask()
 * Add info dictionary to test data

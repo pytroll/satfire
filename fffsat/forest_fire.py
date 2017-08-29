@@ -95,7 +95,7 @@ class ForestFire(object):
             for chan in self.config['channels_to_load']:
                 self.fires[(row, col)][chan] = self.data[chan][row, col]
 
-    def save(self, fname=None):
+    def save_text(self, fname=None):
         """Save forest fires"""
         if fname is None:
             if "fname_pattern" in self.config:
