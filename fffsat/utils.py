@@ -12,6 +12,7 @@ import logging
 import os.path
 import yaml
 from collections import OrderedDict
+import datetime as dt
 
 import numpy as np
 import h5py
@@ -72,6 +73,7 @@ def read_sat_data(fname, channels, reader):
         fname = [fname, ]
     glbl = Scene(filenames=fname, reader=reader)
     glbl.load(channels)
+    glbl.info["proc_time"] = dt.datetime.utcnow()
 
     return glbl
 
