@@ -6,16 +6,16 @@ TODO:
 * saving
   - fileformat(s)?
 
-* Use probability levels from utils.py
-
-* Pass landuse data (and any other relevant info) from static masks
-  - add "metadata" struct as return value to utils.check_static_masks
-    and the static mask functions
-
 TESTING:
 * Add night-time test data + test cases
 * Add unittests for utils.read_sat_data
-* Add unittests for forest_fire.ForestFire.check_static_masks()
 * Add unittests for utils.check_static_masks()
 * Add unittests for utils.get_footprint_data()
 * Add unittests for utils.check_globcover()
+* Add unittests for utils.get_close_idxs()
+* Add unittests for forest_fire.ForestFire.check_static_masks()
+* Add unittests for forest_fire.ForestFire.run()
+* Add unittests for forest_fire.ForestFire.collect_sat_data()
+* Add unittests for forest_fire.ForestFire.save()
+* Add unittests for forest_fire.ForestFire.get_land_cover_mask()
+* Add unittests for forest_fire.ForestFire.get_snow_mask()
