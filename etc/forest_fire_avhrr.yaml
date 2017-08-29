@@ -2,6 +2,12 @@
 
 # Paths, masking configs, etc.
 
+# Filename pattern for output text
+fname_pattern: "{start_time:%Y%m%d_%H%M}_fffsat.txt"
+
+# Pattern for the data output
+text_template: "{longitude:.3f},{latitude:.3f},{probability:s},{quality:s},{footprint_radius:.3f}\n"
+
 # Masking functions that create masks from the satellite data or use
 # external products that are in satellite projection (eg. NWC SAF cloud mask)
 mask_functions:

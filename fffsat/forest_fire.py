@@ -10,6 +10,7 @@
 import logging
 
 import numpy as np
+from trollsift import compose
 
 from fffsat import utils
 
@@ -36,6 +37,9 @@ QUALITY_NAMES = {QUALITY_NOT_FIRE: "not fire",
                  QUALITY_LOW: "low",
                  QUALITY_MEDIUM: "medium",
                  QUALITY_HIGH: "high"}
+
+DEFAULT_TEMPLATE = "{longitude:.3f},{latitude:.3f},{probability:s}," + \
+    "{quality:s},{footprint_radius:.3f}\n"
 
 
 class ForestFire(object):
@@ -91,9 +95,30 @@ class ForestFire(object):
             for chan in self.config['channels_to_load']:
                 self.fires[(row, col)][chan] = self.data[chan][row, col]
 
-    def save(self):
+    def save(self, fname=None):
         """Save forest fires"""
-        print self.fires
+        if fname is None:
+            if "fname_pattern" in self.config:
+                fname = self.config["fname_pattern"]
+        try:
+            template = self.config['text_template']
+        except KeyError:
+            logging.warning("No output template given, using default: %s",
+                            DEFAULT_TEMPLATE)
+            template = DEFAULT_TEMPLATE
+
+        output_text = []
+        for itm in self.fires:
+            output_text.append(compose(template, self.fires[itm]))
+
+        output_text = ''.join(output_text)
+        if fname is None:
+            print(output_text)
+        else:
+            fname = compose(fname, self.data.info)
+            with open(fname, 'w') as fid:
+                fid.write(output_text)
+                logging.info("Output written to %s", fname)
 
     def clean(self):
         """Cleanup after processing."""
