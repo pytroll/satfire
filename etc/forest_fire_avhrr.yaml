@@ -3,9 +3,24 @@
 # Paths, masking configs, etc.
 
 # Filename pattern for output text
+# Possible keys are:
+# - start_time
+# - end_time
+# - proc_time
 fname_pattern: "{start_time:%Y%m%d_%H%M}_fffsat.txt"
 
 # Pattern for the data output
+# Possible keys are:
+# - longitude
+# - latitude
+# - probability
+# - quality
+# - footprint_radius
+# - along_radius
+# - across_radius
+# - obs_time
+# - channel names (see "channels_to_load below")
+# - landuse_fraction_{urban,bare,water,permanent_ice_or_snow,no_data}
 text_template: "{longitude:.3f},{latitude:.3f},{probability:s},{quality:s},{footprint_radius:.3f}\n"
 
 # Masking functions that create masks from the satellite data or use
@@ -89,7 +104,7 @@ swath_edge_mask:
   # From Planck et.al. 2017
   threshold: 40.0
 swath_end_mask:
-  # Mask (max(bg_side_lengts) - 1) / 2 pixels from both ends of the swath
+  # Mask *threshold* pixels from both ends of the swath
   threshold: 10
 water_mask:
   # First guess
