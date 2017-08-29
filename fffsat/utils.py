@@ -120,6 +120,8 @@ def check_globcover(fname, idxs, lonlats, footprints, settings, metadata):
             # Get mask data that covers satellite footprint
             max_radius = np.max((along[i], across[i])) / 2.
             metadata[i]['footprint_radius'] = max_radius
+            metadata[i]['along_radius'] = along[i] / 2.
+            metadata[i]['across_radius'] = across[i] / 2.
             data = get_footprint_data(full_mask[close_idxs],
                                       mask_lon[close_idxs],
                                       mask_lat[close_idxs],
