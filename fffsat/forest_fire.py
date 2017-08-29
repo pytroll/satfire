@@ -91,9 +91,15 @@ class ForestFire(object):
 
     def collect_sat_data(self):
         """Collect satellite data for each forest fire candidate"""
+        # Calculate exact observation times from start and end times
+        start_time = self.data.info['start_time']
+        end_time = self.data.info['end_time']
+        diff = (end_time - start_time) / \
+            self.data[self.config['ir1_chan_name']].shape[0]
         for row, col in self.fires:
             for chan in self.config['channels_to_load']:
                 self.fires[(row, col)][chan] = self.data[chan][row, col]
+            self.fires[(row, col)]['obs_time'] = start_time + row * diff
 
     def save_text(self, fname=None):
         """Save forest fires"""
