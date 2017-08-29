@@ -106,10 +106,6 @@ class ForestFire(object):
         """Apply given mask to the product mask"""
         self.mask |= mask
 
-    def resample_aux(self, data, lons, lats):
-        """Resample auxiliary data to swath"""
-        pass
-
     def mask_data(self):
         """Create and apply all masks"""
         logging.info("Masking data")

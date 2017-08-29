@@ -227,21 +227,6 @@ def ensure_numpy(itm, dtype=None):
     return itm
 
 
-def read_cloud_mask():
-    """Read cloud mask"""
-    pass
-
-
-def read_snow_mask():
-    """Read snow mask"""
-    pass
-
-
-def read_water_mask():
-    """Read water exclusion mask"""
-    pass
-
-
 def mean_abs_deviation(data):
     """Calculate absolute mean deviation of *data*"""
     return np.sum(np.abs(data - np.mean(data))) / data.size
