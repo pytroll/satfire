@@ -6,8 +6,6 @@ TODO:
 * saving
   - fileformat(s)?
 
-* Calculate exact observation times for each scanline
-
 TESTING:
 * Add night-time test data + test cases
 * Add unittests for utils.read_sat_data
