@@ -40,6 +40,8 @@ QUALITY_NAMES = {QUALITY_NOT_FIRE: "not fire",
 
 DEFAULT_TEMPLATE = "{longitude:.3f},{latitude:.3f},{probability:s}," + \
     "{quality:s},{footprint_radius:.3f}\n"
+DEFAULT_HEADER = "# Longitude, Latitude, Probability," + \
+                 "Quality, Footprint radius [km]"
 
 
 class ForestFire(object):
@@ -98,20 +100,25 @@ class ForestFire(object):
             self.data[self.config['ir1_chan_name']].shape[0]
         for row, col in self.fires:
             for chan in self.config['channels_to_load']:
-                self.fires[(row, col)][chan] = self.data[chan][row, col]
+                self.fires[(row, col)]['ch' + str(chan)] = \
+                    self.data[chan][row, col]
             self.fires[(row, col)]['obs_time'] = start_time + row * diff
 
     def save_text(self, fname=None):
         """Save forest fires"""
         if fname is None:
-            if "fname_pattern" in self.config:
-                fname = self.config["fname_pattern"]
+            if "text_fname_pattern" in self.config:
+                fname = self.config["text_fname_pattern"]
         try:
             template = self.config['text_template']
         except KeyError:
             logging.warning("No output template given, using default: %s",
                             DEFAULT_TEMPLATE)
             template = DEFAULT_TEMPLATE
+        try:
+            header = self.config["text_header"]
+        except KeyError:
+            header = DEFAULT_HEADER
 
         output_text = []
         for itm in self.fires:
@@ -123,6 +130,8 @@ class ForestFire(object):
         else:
             fname = compose(fname, self.data.info)
             with open(fname, 'w') as fid:
+                fid.write(header)
+                fid.write('\n')
                 fid.write(output_text)
                 logging.info("Output written to %s", fname)
 
