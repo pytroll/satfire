@@ -4,24 +4,25 @@
 
 # Filename pattern for output text
 # Possible keys are:
-# - start_time
-# - end_time
-# - proc_time
-fname_pattern: "{start_time:%Y%m%d_%H%M}_fffsat.txt"
+# - start_time (swath start time, UTC)
+# - end_time (swath end time, UTC)
+# - proc_time (processing time, UTC)
+text_fname_pattern: "{start_time:%Y%m%d_%H%M}_fffsat.txt"
 
 # Pattern for the data output
 # Possible keys are:
 # - longitude
 # - latitude
-# - probability
-# - quality
-# - footprint_radius
-# - along_radius
-# - across_radius
-# - obs_time
-# - channel names (see "channels_to_load below")
+# - probability (-> 'low', 'medium' or 'high')
+# - quality (-> 'low', 'medium' or 'high')
+# - footprint_radius (maximum of along and across radii, used for landuse masking)
+# - along_radius (footprint radius in along-tranck direction)
+# - across_radius (footprint radius in across-tranck direction)
+# - obs_time (calculated from swath start and end times for each scanline)
+# - channel names (see "channels_to_load" below)
 # - landuse_fraction_{urban,bare,water,permanent_ice_or_snow,no_data}
 text_template: "{longitude:.3f},{latitude:.3f},{probability:s},{quality:s},{footprint_radius:.3f}\n"
+text_header: "# Longitude, Latitude, Probability, Quality, Footprint radius [km]"
 
 # Masking functions that create masks from the satellite data or use
 # external products that are in satellite projection (eg. NWC SAF cloud mask)
