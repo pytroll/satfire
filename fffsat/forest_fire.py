@@ -41,7 +41,7 @@ QUALITY_NAMES = {QUALITY_NOT_FIRE: "not fire",
 DEFAULT_TEMPLATE = "{longitude:.3f},{latitude:.3f},{probability:s}," + \
     "{quality:s},{footprint_radius:.3f}\n"
 DEFAULT_HEADER = "# Longitude, Latitude, Probability," + \
-                 "Quality, Footprint radius [km]"
+                 "Quality, Footprint radius [km]\n"
 
 
 class ForestFire(object):
@@ -131,7 +131,8 @@ class ForestFire(object):
             fname = compose(fname, self.data.info)
             with open(fname, 'w') as fid:
                 fid.write(header)
-                fid.write('\n')
+                if not header.endswith('\n'):
+                    fid.write('\n')
                 fid.write(output_text)
                 logging.info("Output written to %s", fname)
 
