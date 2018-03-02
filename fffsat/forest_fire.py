@@ -69,7 +69,7 @@ class ForestFire(object):
     def run(self, msg=None, sat_fname=None, cma_fname=None):
         """Run everything"""
         if msg is not None:
-            sat_fname, cma_fname = utils.get_filenames_from_msg(msg)
+            sat_fname, cma_fname = utils.get_filenames_from_msg(msg, config)
         if sat_fname is None:
             self.logger.critical("No satellite data in message")
             return False
