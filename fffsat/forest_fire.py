@@ -79,7 +79,7 @@ class ForestFire(object):
                                         reader=self.config["satpy_reader"])
         if cma_fname is not None:
             logging.info("Reading PPS cloud mask")
-            self.cloud_mask = utils.read_cma(cma_fname)
+            self.cloud_mask = utils.read_cma(cma_fname, config)
 
         # Initial mask
         self.mask = self.data[self.config["nir_chan_name"]].mask.copy()
