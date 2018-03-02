@@ -69,7 +69,8 @@ class ForestFire(object):
     def run(self, msg=None, sat_fname=None, cma_fname=None):
         """Run everything"""
         if msg is not None:
-            sat_fname, cma_fname = utils.get_filenames_from_msg(msg, config)
+            sat_fname, cma_fname = utils.get_filenames_from_msg(msg,
+                                                                self.config)
         if sat_fname is None:
             self.logger.critical("No satellite data in message")
             return False
@@ -79,7 +80,7 @@ class ForestFire(object):
                                         reader=self.config["satpy_reader"])
         if cma_fname is not None:
             logging.info("Reading PPS cloud mask")
-            self.cloud_mask = utils.read_cma(cma_fname, config)
+            self.cloud_mask = utils.read_cma(cma_fname)
 
         # Initial mask
         self.mask = self.data[self.config["nir_chan_name"]].mask.copy()
@@ -395,7 +396,7 @@ class ForestFire(object):
         if 3 not in sides:
             sides.insert(0, 3)
 
-        # References to full resolution datasets needed
+        # References to needed full resolution datasets
         full_mir = self.data[self.config["mir_chan_name"]]
         full_ir1 = self.data[self.config["ir1_chan_name"]]
         full_mask = self.mask

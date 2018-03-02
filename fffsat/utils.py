@@ -78,6 +78,12 @@ def read_sat_data(fname, channels, reader):
     return glbl
 
 
+def read_cma(fname):
+    """Read cloud mask data"""
+    glbl = read_sat_data(fname, "cma", "nc_nwcsaf_pps")
+    return cma.data != 0
+
+
 def check_globcover(fname, idxs, lonlats, footprints, settings, metadata):
     """Check globcover mask."""
     lons, lats = lonlats
