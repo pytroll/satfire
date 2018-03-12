@@ -170,6 +170,9 @@ ifov: 1.4e-3
 # Maximum width of the satellite swath (from sub-satellite to swath edge)
 max_swath_width: 2000.
 
+# Minimum quality level to write on file
+minimum_quality_level: 2
+
 standalone_log_config:
   version: 1
   handlers:

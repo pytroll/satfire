@@ -80,7 +80,11 @@ def read_sat_data(fname, channels, reader):
 
 def read_cma(fname):
     """Read cloud mask data"""
-    glbl = read_sat_data(fname, "cma", "nc_nwcsaf_pps")
+    try:
+        glbl = read_sat_data(fname, ["cma", ], "nc_nwcsaf_pps")
+        cma = glbl['cma']
+    except ValueError:
+        return None
     return cma.data != 0
 
 

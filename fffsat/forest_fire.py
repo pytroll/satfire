@@ -61,8 +61,10 @@ class ForestFire(object):
         # All invalid pixels are set as True.  After processing the locations
         # marked as False are the valid forest fires.
         self.mask = None
-        # Cloud mask
+        # Built-in cloud mask
         self.cloud_mask = None
+        # NWC SAF PPS cloud mask
+        self.nwc_mask = None
         # Result of fire mapping
         self.fires = {}
 
@@ -74,13 +76,13 @@ class ForestFire(object):
         if sat_fname is None:
             self.logger.critical("No satellite data in message")
             return False
-        logging.info("Reading satellite data")
+        logging.info("Reading satellite data from %s", sat_fname)
         self.data = utils.read_sat_data(sat_fname,
                                         self.config["channels_to_load"],
                                         reader=self.config["satpy_reader"])
         if cma_fname is not None:
             logging.info("Reading PPS cloud mask")
-            self.cloud_mask = utils.read_cma(cma_fname)
+            self.nwc_mask = utils.read_cma(cma_fname)
 
         # Initial mask
         self.mask = self.data[self.config["nir_chan_name"]].mask.copy()
@@ -121,9 +123,16 @@ class ForestFire(object):
         except KeyError:
             header = DEFAULT_HEADER
 
+        minimum_quality_level = self.config.get("minimum_quality_level",
+                                                QUALITY_NOT_FIRE)
+
         output_text = []
         for itm in self.fires:
-            output_text.append(compose(template, self.fires[itm]))
+            if self.fires[itm]['quality'] >= minimum_quality_level:
+                output_text.append(compose(template, self.fires[itm]))
+            else:
+                logging.warning("Item filtered based on 'quality': %s",
+                                str(self.fires[itm]))
 
         output_text = ''.join(output_text)
         if fname is None:
@@ -142,6 +151,7 @@ class ForestFire(object):
         self.data = None
         self.mask = None
         self.cloud_mask = None
+        self.nwc_mask = None
         self.fires = {}
 
     def apply_mask(self, mask):
@@ -155,7 +165,8 @@ class ForestFire(object):
             logging.info("Apply '%s'.", func_name)
             read_func = getattr(self, func_name)
             mask = read_func()
-            self.apply_mask(mask)
+            if mask is not None:
+                self.apply_mask(mask)
 
     # Static masks read from a file and resampled to match the swath
 
@@ -177,12 +188,12 @@ class ForestFire(object):
         return mask
 
     def get_cloud_mask(self):
-        """Get exclusion mask"""
-        if self.cloud_mask is not None:
-            return self.cloud_mask
-        else:
-            self.logger.warning("NWC SAF cloud mask not available")
-            return self.create_cloud_mask()
+        """Get built-in cloud exclusion mask"""
+        return self.create_cloud_mask()
+
+    def get_nwc_mask(self):
+        """Get NWC SAF cloud mask"""
+        return self.nwc_mask
 
     def create_water_mask(self):
         """Create water mask"""
