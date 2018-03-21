@@ -48,21 +48,18 @@ def read_config(fname):
 def get_filenames_from_msg(msg, config):
     """Find filenames for satellite data and cloud mask data from the message.
     """
-    sat_fname = None
-    cma_fname = None
-    for dset in msg.data['dataset']:
-        fname = dset['uri']
-        # Try matching to filename patterns given in config
-        try:
-            parse(config["data_fname_pattern"], os.path.basename(fname))
-            sat_fname = fname
-        except ValueError:
-            pass
-        try:
-            parse(config["cloud_mask_fname_pattern"], os.path.basename(fname))
-            cma_fname = fname
-        except ValueError:
-            pass
+    cma_tag = config['cma_message_tag']
+    sat_tag = config['sat_message_tag']
+
+    try:
+        sat_fname = msg.data['collection'][sat_tag]['dataset'][0]['uri']
+    except (KeyError, IndexError):
+        sat_fname = None
+
+    try:
+        cma_fname = msg.data['collection'][cma_tag]['dataset'][0]['uri']
+    except (KeyError, IndexError):
+        cma_fname = None
 
     return sat_fname, cma_fname
 
