@@ -68,10 +68,11 @@ class TestForestFire(unittest.TestCase):
         # Clean data
         self.fff.clean()
 
-    def test_get_cloud_mask(self):
+    def test_get_nwc_mask(self):
         # Mask is available
-        self.fff.cloud_mask = 3
-        res = self.fff.get_cloud_mask()
+        # self.fff.data = read_sat_data(self.data_fname, self.config)
+        self.fff.nwc_mask = 3
+        res = self.fff.get_nwc_mask()
         self.assertEqual(res, 3)
         self.fff.clean()
         # Create from swath data

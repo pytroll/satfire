@@ -96,3 +96,6 @@ mask_functions:
     null
 
 sol_za_day_limit: 85.
+
+cma_message_tag: pps
+sat_message_tag: hrpt
