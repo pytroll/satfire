@@ -14,7 +14,7 @@ import time
 
 from trollflow.workflow_component import AbstractWorkflowComponent
 from trollflow.utils import acquire_lock, release_lock
-from fffsat.forest_fires import ForestFire
+from fffsat.forest_fire import ForestFire
 
 
 class FFFsat(AbstractWorkflowComponent):
@@ -45,7 +45,7 @@ class FFFsat(AbstractWorkflowComponent):
 
         fff = ForestFire(context["config"])
         fff.run(context["content"])
-        fff.save()
+        fff.save_text()
 
         if self.use_lock:
             self.logger.debug("FFFsat releases own lock %s",
