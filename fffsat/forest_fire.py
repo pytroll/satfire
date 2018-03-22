@@ -140,9 +140,10 @@ class ForestFire(object):
         else:
             fname = compose(fname, self.data.info)
             with open(fname, 'w') as fid:
-                fid.write(header)
-                if not header.endswith('\n'):
-                    fid.write('\n')
+                if header is not None:
+                    fid.write(header)
+                    if not header.endswith('\n'):
+                        fid.write('\n')
                 fid.write(output_text)
                 logging.info("Output written to %s", fname)
 
