@@ -7,6 +7,7 @@ config:
   fffsat_config: &fffsat_config
     !!python/object/apply:fffsat.utils.read_config
       - forest_fire_avhrr.yaml
+
 work:
     - type: daemon
       name: listener
@@ -18,5 +19,5 @@ work:
       name: fffsat
       Workflow:
         - fffsat.fffsat_plugin.FFFsat:
-          config: *fffsat_config
-          use_lock: *use_locks
+            config: *fffsat_config
+            use_lock: *use_locks
