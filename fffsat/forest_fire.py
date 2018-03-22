@@ -24,6 +24,18 @@ QUALITY_LOW = 2
 QUALITY_MEDIUM = 3
 QUALITY_HIGH = 4
 
+CONFIDENCE_LOW = 7
+CONFIDENCE_NOMINAL = 8
+CONFIDENCE_HIGH = 9
+
+PROBABILITY_TO_CONFIDENCE = {PROBABILITY_LOW: CONFIDENCE_LOW,
+                             PROBABILITY_MEDIUM: CONFIDENCE_NOMINAL,
+                             PROBABILITY_HIGH: CONFIDENCE_HIGH}
+
+QUALITY_CONFIDENCE_ADJUSTMENT = {QUALITY_LOW: -1,
+                                 QUALITY_MEDIUM: 0,
+                                 QUALITY_HIGH: 0}
+
 BOX_SIZE_TO_QUALITY = {3: QUALITY_LOW,
                        5: QUALITY_MEDIUM,
                        7: QUALITY_HIGH}
@@ -328,6 +340,7 @@ class ForestFire(object):
                 self.fires[(rows[i], cols[i])] = \
                     {'quality': QUALITY_NAMES[quality],
                      'probability': PROBABILITY_NAMES[lvl],
+                     'confidence': get_confidence(lvl, quality),
                      'latitude': self.data[self.config['lat_name']][rows[i],
                                                                     cols[i]],
                      'longitude': self.data[self.config['lon_name']][rows[i],
@@ -470,3 +483,12 @@ class ForestFire(object):
             return mir_out, ir1_out, quality
         else:
             return None, None, quality
+
+
+def get_confidence(probability, quality):
+    """Combine probability and quality to single confidence figure"""
+    confidence = PROBABILITY_TO_CONFIDENCE[probability]
+    confidence += QUALITY_CONFIDENCE_ADJUSTMENT[quality]
+    confidence = max(confidence, CONFIDENCE_LOW)
+
+    return confidence

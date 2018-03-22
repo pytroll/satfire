@@ -302,6 +302,38 @@ class TestForestFire(unittest.TestCase):
                 forest_fire.QUALITY_NAMES[forest_fire.QUALITY_HIGH])
         self.fff.clean()
 
+    def test_get_confidence(self):
+        # Low probability
+        self.assertEqual(forest_fire.get_confidence(forest_fire.PROBABILITY_LOW,
+                                                    forest_fire.QUALITY_LOW),
+                         forest_fire.CONFIDENCE_LOW)
+        self.assertEqual(forest_fire.get_confidence(forest_fire.PROBABILITY_LOW,
+                                                    forest_fire.QUALITY_MEDIUM),
+                         forest_fire.CONFIDENCE_LOW)
+        self.assertEqual(forest_fire.get_confidence(forest_fire.PROBABILITY_LOW,
+                                                    forest_fire.QUALITY_HIGH),
+                         forest_fire.CONFIDENCE_LOW)
+        # Mediuma probability
+        self.assertEqual(forest_fire.get_confidence(forest_fire.PROBABILITY_MEDIUM,
+                                                    forest_fire.QUALITY_LOW),
+                         forest_fire.CONFIDENCE_LOW)
+        self.assertEqual(forest_fire.get_confidence(forest_fire.PROBABILITY_MEDIUM,
+                                                    forest_fire.QUALITY_MEDIUM),
+                         forest_fire.CONFIDENCE_NOMINAL)
+        self.assertEqual(forest_fire.get_confidence(forest_fire.PROBABILITY_MEDIUM,
+                                                    forest_fire.QUALITY_HIGH),
+                         forest_fire.CONFIDENCE_NOMINAL)
+        # High probability
+        self.assertEqual(forest_fire.get_confidence(forest_fire.PROBABILITY_HIGH,
+                                                    forest_fire.QUALITY_LOW),
+                         forest_fire.CONFIDENCE_NOMINAL)
+        self.assertEqual(forest_fire.get_confidence(forest_fire.PROBABILITY_HIGH,
+                                                    forest_fire.QUALITY_MEDIUM),
+                         forest_fire.CONFIDENCE_HIGH)
+        self.assertEqual(forest_fire.get_confidence(forest_fire.PROBABILITY_HIGH,
+                                                    forest_fire.QUALITY_HIGH),
+                         forest_fire.CONFIDENCE_HIGH)
+
 
 def read_sat_data(fname, config):
     """Read test satellite data and put it in dictionary with names in the
