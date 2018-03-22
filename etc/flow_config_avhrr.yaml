@@ -11,7 +11,7 @@ work:
       components:
         - class: !!python/object:posttroll.listener.ListenerContainer
             topics:
-              - /AAPP-HRPT/1B
+              - /segment-hrpt-and_pps/
     - type: workflow
       name: fffsat
       Workflow:
