@@ -306,7 +306,8 @@ class ForestFire(object):
                           np.invert(self.mask) &
                           candidate_mask)
 
-            logging.info("Initial candidates: %d", candidates.sum())
+            num_candidates = candidates.sum() or 0
+            logging.info("Initial candidates: %d", num_candidates)
             rows, cols = np.nonzero(candidates)
 
             # If there's no data, exit
