@@ -2,6 +2,8 @@ config:
   # log_config:
   use_locks: &use_locks
     true
+  log_config:
+    log_config.ini
   fffsat_config: &fffsat_config
     !!python/object/apply:fffsat.utils.read_config
       - forest_fire_avhrr.yaml
