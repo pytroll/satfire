@@ -20,8 +20,8 @@ hdf5_fname_pattern: "/tmp/{start_time:%Y%m%d_%H%M}_fffsat.h5"
 # - quality_str (-> 'not fire', 'unknown', 'low', 'medium' or 'high')
 # - confidence (-> 7, 8 or 9; combined info of probability and quality)
 # - footprint_radius (maximum of along and across radii, used for landuse masking)
-# - along_radius (footprint radius in along-tranck direction)
-# - across_radius (footprint radius in across-tranck direction)
+# - along_radius (footprint radius in along-track direction)
+# - across_radius (footprint radius in across-track direction)
 # - obs_time (calculated from swath start and end times for each scanline)
 # - channel names (see "channels_to_load" below)
 # - landuse_fraction_{urban,bare,water,permanent_ice_or_snow,no_data}
@@ -88,16 +88,24 @@ channels_to_load:
 satpy_reader: avhrr_aapp_l1b
 
 # Channel names
-vis_chan_name: '1'
-nir_chan_name: '2'
-mir_chan_name: '3b'
-ir1_chan_name: '4'
-ir2_chan_name: '5'
+vis_chan_name: &vis '1'
+nir_chan_name: &nir '2'
+mir_chan_name: &mir '3b'
+ir1_chan_name: &ir1 '4'
+ir2_chan_name: &ir2 '5'
 sol_za_name: solar_zenith_angle
 sat_za_name: sensor_zenith_angle
 rel_az_name: sun_sensor_azimuth_difference_angle
 lat_name: latitude
 lon_name: longitude
+
+# Actual satellite measurements
+sensed_chan_names:
+  - *vis
+  - *nir
+  - *mir
+  - *ir1
+  - *ir2
 
 # Mask configs
 
