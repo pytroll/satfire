@@ -24,6 +24,7 @@ QUALITY_LOW = 2
 QUALITY_MEDIUM = 3
 QUALITY_HIGH = 4
 
+CONFIDENCE_NONE = 0
 CONFIDENCE_LOW = 7
 CONFIDENCE_NOMINAL = 8
 CONFIDENCE_HIGH = 9
@@ -115,7 +116,11 @@ class ForestFire(object):
             self.data[self.config['ir1_chan_name']].shape[0]
         for row, col in self.fires:
             for chan in self.config['channels_to_load']:
-                self.fires[(row, col)]['ch' + str(chan)] = \
+                if chan in self.config['sensed_chan_names']:
+                    chan2 = 'ch' + str(chan)
+                else:
+                    chan2 = str(chan)
+                self.fires[(row, col)][chan2] = \
                     self.data[chan][row, col]
             self.fires[(row, col)]['obs_time'] = start_time + row * diff
 
@@ -158,6 +163,14 @@ class ForestFire(object):
                         fid.write('\n')
                 fid.write(output_text)
                 logging.info("Output written to %s", fname)
+
+    def save_hdf5(self, fname=None):
+        """Save self.fires to YAML file"""
+        if fname is None:
+            fname = self.config["hdf5_fname_pattern"]
+        fname = compose(fname, self.data.info)
+        utils.save_hdf5(fname, self.fires)
+        logging.info("Output written to %s", fname)
 
     def clean(self):
         """Cleanup after processing."""
@@ -335,8 +348,9 @@ class ForestFire(object):
             candidate_mask[rows, cols] = True
 
             for i in range(len(rows)):
-                quality = self.qualify_fires(rows[i], cols[i],
-                                             is_day=day_mask[rows[i], cols[i]])
+                quality, stats = self.qualify_fires(rows[i], cols[i],
+                                                    is_day=day_mask[rows[i],
+                                                                    cols[i]])
                 self.fires[(rows[i], cols[i])] = \
                     {'quality': QUALITY_NAMES[quality],
                      'probability': PROBABILITY_NAMES[lvl],
@@ -346,6 +360,7 @@ class ForestFire(object):
                      'longitude': self.data[self.config['lon_name']][rows[i],
                                                                      cols[i]]}
                 self.fires[(rows[i], cols[i])].update(metadata[i])
+                self.fires[(rows[i], cols[i])].update(stats)
 
     def check_static_masks(self, rows, cols):
         """Mask data based on static masks. Return valid row and column
@@ -381,31 +396,38 @@ class ForestFire(object):
         """Check if hotspot at [row, col] is a fire or not."""
         # Get valid background pixels for MIR and IR108 channels around
         # [row, col]
+        stats = {}
         mir_bg, ir1_bg, quality = self.get_background(row, col)
         if mir_bg is None or ir1_bg is None:
-            return QUALITY_UNKNOWN
+            return QUALITY_UNKNOWN, {}
 
         mir = self.data[self.config["mir_chan_name"]][row, col]
         ir1 = self.data[self.config["ir1_chan_name"]][row, col]
         diff_mir_ir1 = mir - ir1
 
-        # Calculate statistics
+        # Calculate statistics and collect them to a dict
         mean_diff_bg = np.mean(mir_bg - ir1_bg)
+        stats['background_mean_difference'] = mean_diff_bg
         mad_diff_bg = utils.mean_abs_deviation(mir_bg - ir1_bg)
+        stats['background_mean_absolute_deviation'] = mad_diff_bg
         mean_ir1_bg = np.mean(ir1_bg)
+        stats['background_mean_ir1'] = mean_ir1_bg
         mad_ir1_bg = utils.mean_abs_deviation(ir1_bg)
+        stats['background_mean_absolute_deviation_ir1'] = mad_ir1_bg
 
         if is_day:
             if ((diff_mir_ir1 > mean_diff_bg + mad_diff_bg) and
                     (ir1 > mean_ir1_bg + mad_ir1_bg - 3.)):
-                return quality
+                pass
             else:
-                return QUALITY_NOT_FIRE
+                quality = QUALITY_NOT_FIRE
         else:
             if (diff_mir_ir1 > mean_diff_bg + mad_diff_bg):
-                return quality
+                pass
             else:
-                return QUALITY_NOT_FIRE
+                quality = QUALITY_NOT_FIRE
+
+        return quality, stats
 
     def get_background(self, row, col):
         """Get background data around pixel location [row, col] for MIR and
@@ -488,7 +510,10 @@ class ForestFire(object):
 def get_confidence(probability, quality):
     """Combine probability and quality to single confidence figure"""
     confidence = PROBABILITY_TO_CONFIDENCE[probability]
-    confidence += QUALITY_CONFIDENCE_ADJUSTMENT[quality]
-    confidence = max(confidence, CONFIDENCE_LOW)
+    try:
+        confidence += QUALITY_CONFIDENCE_ADJUSTMENT[quality]
+        confidence = max(confidence, CONFIDENCE_LOW)
+    except KeyError:
+        confidence = CONFIDENCE_NONE
 
     return confidence

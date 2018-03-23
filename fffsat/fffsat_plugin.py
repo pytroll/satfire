@@ -46,6 +46,9 @@ class FFFsat(AbstractWorkflowComponent):
         fff = ForestFire(context["config"])
         fff.run(context["content"])
         fff.save_text()
+        if "hdf5_fname_pattern" in context["config"]:
+            fff.save_hdf5()
+        fff.clean()
 
         if self.use_lock:
             self.logger.debug("FFFsat releases own lock %s",

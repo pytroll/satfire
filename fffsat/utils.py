@@ -45,6 +45,21 @@ def read_config(fname):
     return config
 
 
+def save_hdf5(fname, data):
+    """Save *data* as YAML to *fname*."""
+    import h5py
+    with h5py.File(fname, 'w') as fid:
+        for key in data:
+            fid.create_group(str(key))
+            grp = fid[str(key)]
+            for key2 in data[key]:
+                val = data[key][key2]
+                if isinstance(val, dt.datetime):
+                    val = [val.year, val.month, val.day,
+                           val.hour, val.minute, val.second, val.microsecond]
+                grp[key2] = val
+
+
 def get_filenames_from_msg(msg, config):
     """Find filenames for satellite data and cloud mask data from the message.
     """

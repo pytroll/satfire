@@ -9,6 +9,9 @@
 # - proc_time (processing time, UTC)
 text_fname_pattern: "{start_time:%Y%m%d_%H%M}_fffsat.txt"
 
+# If defined, dump all data collected from forest fire detections to HDF5 file
+hdf5_fname_pattern: "/tmp/{start_time:%Y%m%d_%H%M}_fffsat.h5"
+
 # Pattern for the data output
 # Possible keys are:
 # - longitude
@@ -22,7 +25,7 @@ text_fname_pattern: "{start_time:%Y%m%d_%H%M}_fffsat.txt"
 # - obs_time (calculated from swath start and end times for each scanline)
 # - channel names (see "channels_to_load" below)
 # - landuse_fraction_{urban,bare,water,permanent_ice_or_snow,no_data}
-text_template: "{latitude:.3f},{longitude:.3f},{ch3b:.1f},{footprint_radius:.3f},{footprint_radius:.3f},{confidence:1d},0\n"
+text_template: "{latitude:.3f},{longitude:.3f},{ch3b:.1f},{across_radius:.3f},{along_radius:.3f},{confidence:1d},0\n"
 text_header: null
 
 # Masking functions that create masks from the satellite data or use
