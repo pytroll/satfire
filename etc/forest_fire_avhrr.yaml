@@ -15,19 +15,22 @@ text_fname_pattern: "{start_time:%Y%m%d_%H%M}_fffsat.txt"
 # - latitude
 # - probability (-> 'low', 'medium' or 'high')
 # - quality (-> 'low', 'medium' or 'high')
+# - confidence (-> 7, 8 or 9; combined info of probability and quality)
 # - footprint_radius (maximum of along and across radii, used for landuse masking)
 # - along_radius (footprint radius in along-tranck direction)
 # - across_radius (footprint radius in across-tranck direction)
 # - obs_time (calculated from swath start and end times for each scanline)
 # - channel names (see "channels_to_load" below)
 # - landuse_fraction_{urban,bare,water,permanent_ice_or_snow,no_data}
-text_template: "{longitude:.3f},{latitude:.3f},{probability:s},{quality:s},{footprint_radius:.3f}\n"
-text_header: "# Longitude, Latitude, Probability, Quality, Footprint radius [km]"
+text_template: "{latitude:.3f},{longitude:.3f},{ch3b:.1f},{footprint_radius:.3f},{footprint_radius:.3f},{confidence:1d},0\n"
+text_header: null
 
 # Masking functions that create masks from the satellite data or use
 # external products that are in satellite projection (eg. NWC SAF cloud mask)
 mask_functions:
   get_cloud_mask:
+    null
+  get_nwc_mask:
     null
   create_swath_masks:
     null
@@ -38,12 +41,16 @@ mask_functions:
   create_fcv_mask:
     null
 
+cma_message_tag:
+  pps
+sat_message_tag:
+  hrpt
 
 # Masking functions that apply auxiliary static data not in satellite projection
 static_mask_functions:
   check_globcover:
     filename:
-      globcover.h5
+      /path/to/globcover.h5
     settings:
       urban:
         value: 190
@@ -63,11 +70,11 @@ static_mask_functions:
 
 # Channels to read
 channels_to_load:
-  - 0.6
-  - 0.8
-  - 3.9
-  - 10.8
-  - 12.0
+  - '1'
+  - '2'
+  - '3b'
+  - '4'
+  - '5'
   - latitude
   - longitude
   - solar_zenith_angle
@@ -75,14 +82,14 @@ channels_to_load:
   - sun_sensor_azimuth_difference_angle
 
 # Satpy reader
-satpy_reader: aapp_l1b
+satpy_reader: avhrr_aapp_l1b
 
 # Channel names
-vis_chan_name: 0.6
-nir_chan_name: 0.8
-mir_chan_name: 3.9
-ir1_chan_name: 10.8
-ir2_chan_name: 12.0
+vis_chan_name: '1'
+nir_chan_name: '2'
+mir_chan_name: '3b'
+ir1_chan_name: '4'
+ir2_chan_name: '5'
 sol_za_name: solar_zenith_angle
 sat_za_name: sensor_zenith_angle
 rel_az_name: sun_sensor_azimuth_difference_angle
@@ -92,11 +99,11 @@ lon_name: longitude
 # Mask configs
 
 land_cover_mask:
-  mask_file: land_mask.h5
-snow_mask:
-  mask_file: snow_mask.h5
+  mask_file: /path/to/globcover.h5
+# snow_mask:
+#   mask_file: snow_mask.h5
 cloud_mask:
-  # Threshold used only if NWC SAF cloud mask is not available
+  # Threshold used only for built-in cloudmask
   threshold: 20
 fcv_mask:
   # From Planck et.al. 2017

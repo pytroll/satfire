@@ -6,7 +6,7 @@ config:
     log_config.ini
   fffsat_config: &fffsat_config
     !!python/object/apply:fffsat.utils.read_config
-      - forest_fire_avhrr.yaml
+      - /path/to/forest_fire_avhrr.yaml
 
 work:
     - type: daemon
@@ -14,7 +14,7 @@ work:
       components:
         - class: !!python/object:posttroll.listener.ListenerContainer
             topics:
-              - /segment-hrpt-and_pps/
+              - /segment-hrpt-and-pps/
     - type: workflow
       name: fffsat
       Workflow:
