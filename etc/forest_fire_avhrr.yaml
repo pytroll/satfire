@@ -16,8 +16,8 @@ hdf5_fname_pattern: "/tmp/{start_time:%Y%m%d_%H%M}_fffsat.h5"
 # Possible keys are:
 # - longitude
 # - latitude
-# - probability (-> 'low', 'medium' or 'high')
-# - quality (-> 'low', 'medium' or 'high')
+# - probability_str (-> 'low', 'medium' or 'high')
+# - quality_str (-> 'not fire', 'unknown', 'low', 'medium' or 'high')
 # - confidence (-> 7, 8 or 9; combined info of probability and quality)
 # - footprint_radius (maximum of along and across radii, used for landuse masking)
 # - along_radius (footprint radius in along-tranck direction)

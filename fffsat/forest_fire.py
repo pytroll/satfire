@@ -352,8 +352,10 @@ class ForestFire(object):
                                                     is_day=day_mask[rows[i],
                                                                     cols[i]])
                 self.fires[(rows[i], cols[i])] = \
-                    {'quality': QUALITY_NAMES[quality],
-                     'probability': PROBABILITY_NAMES[lvl],
+                    {'quality': quality,
+                     'quality_str': QUALITY_NAMES[quality],
+                     'probability': lvl,
+                     'probability_str': PROBABILITY_NAMES[lvl],
                      'confidence': get_confidence(lvl, quality),
                      'latitude': self.data[self.config['lat_name']][rows[i],
                                                                     cols[i]],
