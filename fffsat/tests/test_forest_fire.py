@@ -251,20 +251,33 @@ class TestForestFire(unittest.TestCase):
     def test_qualify_fires(self):
         self.fff.data = read_sat_data(self.data_fname, self.config)
         self.fff.mask = self.fff.data['mask'].copy()
+
+        ordered_stat_keys = ['background_mean_absolute_deviation',
+                             'background_mean_absolute_deviation_ir1',
+                             'background_mean_difference',
+                             'background_mean_ir1']
         # Water should not be on fire
-        res = self.fff.qualify_fires(8, 8, is_day=True)
+        res, stats = self.fff.qualify_fires(8, 8, is_day=True)
         self.assertEqual(res, forest_fire.QUALITY_NOT_FIRE)
+        stat_keys = stats.keys()
+        stat_keys.sort()
+        self.assertEqual(stat_keys, ordered_stat_keys)
+        self.assertAlmostEqual(stats[stat_keys[0]], 0.0807801282323588, 4)
+        self.assertAlmostEqual(stats[stat_keys[1]], 0.07386372383785655, 4)
+        self.assertAlmostEqual(stats[stat_keys[2]], 1.0043223612979482, 4)
+        self.assertAlmostEqual(stats[stat_keys[3]], 292.43688984226435, 4)
+
         # Set water on fire
         self.fff.data[self.config["mir_chan_name"]][8, 8] = 340.
-        res = self.fff.qualify_fires(8, 8, is_day=True)
+        res, stats = self.fff.qualify_fires(8, 8, is_day=True)
         self.assertEqual(res, forest_fire.QUALITY_HIGH)
         # Fire on the ground
         self.fff.data[self.config["mir_chan_name"]][15, 33] = 340.
-        res = self.fff.qualify_fires(15, 33, is_day=True)
+        res, stats = self.fff.qualify_fires(15, 33, is_day=True)
         self.assertEqual(res, forest_fire.QUALITY_HIGH)
         # Mask everything
         self.fff.mask[:, :] = True
-        res = self.fff.qualify_fires(15, 33, is_day=True)
+        res, stats = self.fff.qualify_fires(15, 33, is_day=True)
         self.assertEqual(res, forest_fire.QUALITY_UNKNOWN)
         # TODO: add night-time tests
         self.fff.clean()
@@ -294,12 +307,10 @@ class TestForestFire(unittest.TestCase):
         self.fff.find_hotspots()
         self.assertEqual(len(self.fff.fires), 1)
         for key in self.fff.fires:
-            self.assertEqual(
-                self.fff.fires[key]['quality'],
-                forest_fire.QUALITY_NAMES[forest_fire.QUALITY_HIGH])
-            self.assertEqual(
-                self.fff.fires[key]['probability'],
-                forest_fire.QUALITY_NAMES[forest_fire.QUALITY_HIGH])
+            self.assertEqual(self.fff.fires[key]['quality'],
+                             forest_fire.QUALITY_HIGH)
+            self.assertEqual(self.fff.fires[key]['probability'],
+                             forest_fire.QUALITY_HIGH)
         self.fff.clean()
 
     def test_get_confidence(self):
