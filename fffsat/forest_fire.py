@@ -93,6 +93,8 @@ class ForestFire(object):
         self.data = utils.read_sat_data(sat_fname,
                                         self.config["channels_to_load"],
                                         reader=self.config["satpy_reader"])
+        self.data.info.update(msg.data)
+
         if cma_fname is not None:
             logging.info("Reading PPS cloud mask")
             self.nwc_mask = utils.read_cma(cma_fname)
