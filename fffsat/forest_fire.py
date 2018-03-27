@@ -46,7 +46,7 @@ PROBABILITY_NAMES = {PROBABILITY_LOW: "low",
                      PROBABILITY_HIGH: "high"}
 
 QUALITY_NAMES = {QUALITY_NOT_FIRE: "not fire",
-                 QUALITY_UNKNOWN: "unkown",
+                 QUALITY_UNKNOWN: "unknown",
                  QUALITY_LOW: "low",
                  QUALITY_MEDIUM: "medium",
                  QUALITY_HIGH: "high"}
