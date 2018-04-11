@@ -89,6 +89,10 @@ class ForestFire(object):
         if sat_fname is None:
             self.logger.critical("No satellite data in message")
             return False
+        if msg.data['platform_name'] not in self.config['platform_names']:
+            self.logger.warning("Satellite %s not configured for production.",
+                                msg.data['platform_name'])
+            return False
         logging.info("Reading satellite data from %s", sat_fname)
         self.data = utils.read_sat_data(sat_fname,
                                         self.config["channels_to_load"],

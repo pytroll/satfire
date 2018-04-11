@@ -87,6 +87,14 @@ channels_to_load:
 # Satpy reader
 satpy_reader: avhrr_aapp_l1b
 
+# List of used satellites.  Everything else is discarded
+platform_names:
+  - NOAA-15
+  - NOAA-18
+  - NOAA-19
+  - Metop-A
+  - Metop-B
+
 # Channel names
 vis_chan_name: &vis '1'
 nir_chan_name: &nir '2'
