@@ -26,8 +26,8 @@ def main():
         cma_fname = None
     logging.config.dictConfig(config['standalone_log_config'])
     fff = ForestFire(config)
-    fff.run(sat_fname=sat_fname, cma_fname=cma_fname)
-    fff.save_text()
+    if fff.run(sat_fname=sat_fname, cma_fname=cma_fname):
+        fff.save_text()
 
 if __name__ == "__main__":
     main()

@@ -113,6 +113,8 @@ class ForestFire(object):
         # Collect satellite data for the forest fire candidates
         self.collect_sat_data()
 
+        return True
+
     def collect_sat_data(self):
         """Collect satellite data for each forest fire candidate"""
         # Calculate exact observation times from start and end times
@@ -132,6 +134,8 @@ class ForestFire(object):
 
     def save_text(self, fname=None):
         """Save forest fires"""
+        if self.data is None:
+            return
         if fname is None:
             if "text_fname_pattern" in self.config:
                 fname = self.config["text_fname_pattern"]
@@ -172,6 +176,8 @@ class ForestFire(object):
 
     def save_hdf5(self, fname=None):
         """Save self.fires to YAML file"""
+        if self.data is None:
+            return
         if fname is None:
             fname = self.config["hdf5_fname_pattern"]
         fname = compose(fname, self.data.info)
