@@ -44,10 +44,10 @@ class FFFsat(AbstractWorkflowComponent):
         self.logger.info("Finding forest fires.")
 
         fff = ForestFire(context["config"])
-        fff.run(context["content"])
-        fff.save_text()
-        if "hdf5_fname_pattern" in context["config"]:
-            fff.save_hdf5()
+        if fff.run(context["content"]):
+            fff.save_text()
+            if "hdf5_fname_pattern" in context["config"]:
+                fff.save_hdf5()
         fff.clean()
 
         if self.use_lock:
