@@ -45,7 +45,8 @@ class FFFsat(AbstractWorkflowComponent):
 
         fff = ForestFire(context["config"])
         if fff.run(context["content"]):
-            fff.save_text()
+            if "text_fname_pattern" in context["config"]:
+                fff.save_text()
             if "hdf5_fname_pattern" in context["config"]:
                 fff.save_hdf5()
         fff.clean()
