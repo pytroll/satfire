@@ -11,6 +11,12 @@ import logging
 
 import numpy as np
 from trollsift import compose
+try:
+    from posttroll.publisher import NoisyPublisher
+    from posttroll.message import Message
+except ImportError:
+    NoisyPublisher = None
+    Message = None
 
 from fffsat import utils
 
@@ -80,6 +86,12 @@ class ForestFire(object):
         self.nwc_mask = None
         # Result of fire mapping
         self.fires = {}
+        # Publisher, if configured
+        if "publisher" in self.config and NoisyPublisher:
+            pub = NoisyPublisher("fffsat", **self.config["publisher"])
+            self._pub = pub.start()
+        else:
+            self._pub = None
 
     def run(self, msg=None, sat_fname=None, cma_fname=None):
         """Run everything"""
@@ -174,6 +186,10 @@ class ForestFire(object):
                 fid.write(output_text)
                 logging.info("Output written to %s", fname)
 
+        if "text_publish_topic" in self.config:
+            self.send_message(self.config["text_publish_topic"],
+                              fname)
+
     def save_hdf5(self, fname=None):
         """Save self.fires to YAML file"""
         if self.data is None:
@@ -183,6 +199,26 @@ class ForestFire(object):
         fname = compose(fname, self.data.info)
         utils.save_hdf5(fname, self.fires)
         logging.info("Output written to %s", fname)
+
+        if "hdf5_publish_topic" in self.config:
+            self.send_message(self.config["text_publish_topic"],
+                              fname)
+
+    def send_message(self, topic, fname):
+        """Send a message that file *fname* has been saved"""
+        if self._pub is None:
+            return
+        try:
+            meta = self.data.attrs
+        except AttributeError:
+            meta = self.data.info
+        msg_dict = {'platform_name': meta['platform_name'],
+                    'start_time': meta['start_time'],
+                    'sensor': meta['sensor'],
+                    'uri': fname}
+        msg = Message(topic, 'file', msg_dict)
+        logging.info("Sending message: %s", str(msg))
+        self._pub.send(str(msg))
 
     def clean(self):
         """Cleanup after processing."""

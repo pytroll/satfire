@@ -8,9 +8,21 @@
 # - end_time (swath end time, UTC)
 # - proc_time (processing time, UTC)
 text_fname_pattern: "{start_time:%Y%m%d_%H%M}_fffsat.txt"
+# If set, send pytroll messages about saved text files with this topic
+# text_publish_topic: "/ears-avhrr/fffsat/txt"
 
 # If defined, dump all data collected from forest fire detections to HDF5 file
 hdf5_fname_pattern: "/tmp/{start_time:%Y%m%d_%H%M}_fffsat.h5"
+# If set, send pytroll messages about saved HDF5 files with this topic
+# hdf5_publish_topic: "/ears-avhrr/fffsat/hdf5"
+
+# Publisher config.  Need to have atleast a empty dict if publishing
+# is used.  The publisher default values are copied below.
+#publisher:
+#  port: 0
+#  aliases: null
+#  broadcast_interval: 2
+#  nameserver: null
 
 # Pattern for the data output
 # Possible keys are:
