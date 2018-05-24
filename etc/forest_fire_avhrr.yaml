@@ -22,7 +22,7 @@ hdf5_fname_pattern: "/tmp/{start_time:%Y%m%d_%H%M}_fffsat.h5"
 #  port: 0
 #  aliases: null
 #  broadcast_interval: 2
-#  nameserver: null
+#  nameservers: null
 
 # Pattern for the data output
 # Possible keys are:
