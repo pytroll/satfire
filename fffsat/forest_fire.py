@@ -88,10 +88,10 @@ class ForestFire(object):
         self.fires = {}
         # Publisher, if configured
         if "publisher" in self.config and NoisyPublisher:
-            pub = NoisyPublisher("fffsat", **self.config["publisher"])
-            self._pub = pub.start()
+            self._pub = NoisyPublisher("fffsat", **self.config["publisher"])
+            self.pub = self._pub.start()
         else:
-            self._pub = None
+            self.pub = None
 
     def run(self, msg=None, sat_fname=None, cma_fname=None):
         """Run everything"""
@@ -206,7 +206,7 @@ class ForestFire(object):
 
     def send_message(self, topic, fname):
         """Send a message that file *fname* has been saved"""
-        if self._pub is None:
+        if self.pub is None:
             return
         try:
             meta = self.data.attrs
@@ -218,7 +218,7 @@ class ForestFire(object):
                     'uri': fname}
         msg = Message(topic, 'file', msg_dict)
         logging.info("Sending message: %s", str(msg))
-        self._pub.send(str(msg))
+        self.pub.send(str(msg))
 
     def clean(self):
         """Cleanup after processing."""
