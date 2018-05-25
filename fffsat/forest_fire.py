@@ -214,7 +214,8 @@ class ForestFire(object):
             meta = self.data.info
         msg_dict = {'platform_name': meta['platform_name'],
                     'start_time': meta['start_time'],
-                    'sensor': meta['sensor'],
+                    # FIXME: should only contain 'avhrr-3'
+                    'sensor': max(meta['sensor']),
                     'uri': fname}
         msg = Message(topic, 'file', msg_dict)
         logging.info("Sending message: %s", str(msg))
