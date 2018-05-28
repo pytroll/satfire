@@ -212,12 +212,15 @@ class ForestFire(object):
             meta = self.data.attrs
         except AttributeError:
             meta = self.data.info
+        sensor = meta['sensor']
+        # FIXME: should only contain 'avhrr-3'
+        if isinstance(sensor, (set, list, tuple)):
+            sensor = max(sensor)
         msg_dict = {'platform_name': meta['platform_name'],
                     'start_time': meta['start_time'],
-                    # FIXME: should only contain 'avhrr-3'
-                    'sensor': max(meta['sensor']),
+                    'sensor': sensor,
                     'uri': fname}
-        msg = Message(topic, 'file', msg_dict)
+        msg = Message(topic, 'file', str(msg_dict))
         logging.info("Sending message: %s", str(msg))
         self.pub.send(str(msg))
 
