@@ -218,9 +218,9 @@ class ForestFire(object):
             sensor = max(sensor)
         msg_dict = {'platform_name': meta['platform_name'],
                     'start_time': meta['start_time'],
-                    'sensor': sensor,
+                    'sensor': sensor.split('-')[0],
                     'uri': fname}
-        msg = Message(topic, 'file', str(msg_dict))
+        msg = Message(topic, 'file', msg_dict)
         logging.info("Sending message: %s", str(msg))
         self.pub.send(str(msg))
 
