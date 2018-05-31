@@ -52,7 +52,8 @@ class FFFsat(AbstractWorkflowComponent):
                         fff.save_hdf5()
             fff.clean()
         finally:
-            fff._pub.stop()
+            if fff._pub is not None:
+                fff._pub.stop()
 
         if self.use_lock:
             self.logger.debug("FFFsat releases own lock %s",

@@ -91,6 +91,7 @@ class ForestFire(object):
             self._pub = NoisyPublisher("fffsat", **self.config["publisher"])
             self.pub = self._pub.start()
         else:
+            self._pub = None
             self.pub = None
 
     def run(self, msg=None, sat_fname=None, cma_fname=None):

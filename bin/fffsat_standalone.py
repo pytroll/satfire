@@ -39,7 +39,8 @@ def main():
         if fff.run(msg=msg, sat_fname=sat_fname, cma_fname=cma_fname):
             fff.save_text()
     finally:
-        fff._pub.stop()
+        if fff._pub is not None:
+            fff._pub.stop()
 
 if __name__ == "__main__":
     main()
