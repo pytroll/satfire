@@ -355,6 +355,27 @@ class ForestFire(object):
 
         return clouds
 
+    def create_twilight_mask(self):
+        """Create mask that removes twilight area."""
+        sun_za = self.data[self.config["sol_za_name"]]
+
+        angle_night = self.config["twilight_mask"]["angle_night_side"]
+        angle_day = self.config["twilight_mask"]["angle_day_side"]
+
+        mask = ((sun_za < 90. - angle_day) &
+                (sun_za > 90. + angle_night))
+
+        return mask
+
+    def create_bad_data_mask(self):
+        """Create a mask that removes missing scanlines etc defects."""
+        mir = self.data[self.config["mir_chan_name"]]
+
+        # Negative values indicate bad brightness temperature values
+        mask = mir < 0.
+
+        return mask
+
     def find_hotspots(self):
         """Find hotspots from unmasked pixels"""
         day_mask = (self.data[self.config["sol_za_name"]] <
