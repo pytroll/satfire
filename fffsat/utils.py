@@ -259,26 +259,26 @@ def mean_abs_deviation(data):
 def get_idxs_around_location(row, col, side, remove_neighbours=False):
     """Get indices around given location in a side x side box.  Optionally remove
     neighbouring pixels."""
-    y_start = row - (side - 1) / 2
-    y_end = row + (side - 1) / 2 + 1
+    y_start = row - int((side - 1) / 2)
+    y_end = row + int((side - 1) / 2) + 1
     y_idxs = np.arange(y_start, y_end)
 
-    x_start = col - (side - 1) / 2
-    x_end = col + (side - 1) / 2 + 1
+    x_start = col - int((side - 1) / 2)
+    x_end = col + int((side - 1) / 2) + 1
     x_idxs = np.arange(x_start, x_end)
 
     y_idxs, x_idxs = np.meshgrid(y_idxs, x_idxs)
 
     mask = np.ones(y_idxs.shape, dtype=np.bool)
     if remove_neighbours is True:
-        start = side / 2 - 1
+        start = int(side / 2 - 1)
         end = start + 3
         mask[start:end, start:end] = False
         y_idxs = y_idxs[mask]
         x_idxs = x_idxs[mask]
     # In any case, mask the centre pixel
     else:
-        mask[side / 2, side / 2] = False
+        mask[int(side / 2), int(side / 2)] = False
         y_idxs = y_idxs[mask]
         x_idxs = x_idxs[mask]
 
