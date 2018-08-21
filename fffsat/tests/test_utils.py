@@ -164,42 +164,42 @@ class TestUtils(unittest.TestCase):
         lon2, lat2 = 21.3, 68.3
         dists, bearings = utils.haversine(lon1, lat1, lon2, lat2,
                                           calc_bearings=True)
-        self.assertAlmostEqual(dists, 939.8, 1)
-        self.assertAlmostEqual(bearings, 350.66, 2)
+        self.assertAlmostEqual(dists[0], 939.8, 1)
+        self.assertAlmostEqual(bearings[0], 350.66, 2)
 
         lon1, lat1 = 0, 0
         lon2, lat2 = 0, 90
         dists, bearings = utils.haversine(lon1, lat1, lon2, lat2,
                                           calc_bearings=True)
-        self.assertAlmostEqual(dists, 10007.9, 1)
-        self.assertAlmostEqual(bearings, 0.0, 1)
+        self.assertAlmostEqual(dists[0], 10007.9, 1)
+        self.assertAlmostEqual(bearings[0], 0.0, 1)
 
         lon1, lat1 = 0, 0
         lon2, lat2 = 90, 0
         dists, bearings = utils.haversine(lon1, lat1, lon2, lat2,
                                           calc_bearings=True)
-        self.assertAlmostEqual(dists, 10007.9, 1)
-        self.assertAlmostEqual(bearings, 90.0, 1)
+        self.assertAlmostEqual(dists[0], 10007.9, 1)
+        self.assertAlmostEqual(bearings[0], 90.0, 1)
 
         lon1, lat1 = 0, 0
         lon2, lat2 = -90, 0
         dists, bearings = utils.haversine(lon1, lat1, lon2, lat2,
                                           calc_bearings=True)
-        self.assertAlmostEqual(dists, 10007.9, 1)
-        self.assertAlmostEqual(bearings, 270.0, 1)
+        self.assertAlmostEqual(dists[0], 10007.9, 1)
+        self.assertAlmostEqual(bearings[0], 270.0, 1)
 
         lon1, lat1 = 0, 0
         lon2, lat2 = 0, -90
         dists, bearings = utils.haversine(lon1, lat1, lon2, lat2,
                                           calc_bearings=True)
-        self.assertAlmostEqual(dists, 10007.9, 1)
-        self.assertAlmostEqual(bearings, 180.0, 1)
+        self.assertAlmostEqual(dists[0], 10007.9, 1)
+        self.assertAlmostEqual(bearings[0], 180.0, 1)
 
         lon1, lat1 = 0, 0
         lon2, lat2 = 0, -90
         dists, bearings = utils.haversine(lon1, lat1, lon2, lat2,
                                           calc_bearings=False)
-        self.assertAlmostEqual(dists, 10007.9, 1)
+        self.assertAlmostEqual(dists[0], 10007.9, 1)
         self.assertIsNone(bearings)
 
     def test_ensure_numpy(self):
