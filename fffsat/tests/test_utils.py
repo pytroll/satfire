@@ -54,7 +54,7 @@ class TestUtils(unittest.TestCase):
         config = utils.read_config(os.path.join(os.path.dirname(__file__),
                                                 "test_data", "config.yaml"))
         self.assertTrue(len(config) > 0)
-        keys = config.keys()
+        keys = list(config.keys())
         self.assertTrue(isinstance(config, OrderedDict))
         self.assertEqual(keys[0], 'item_1')
         self.assertTrue(isinstance(config['item_1'], str))

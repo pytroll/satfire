@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import zipfile
-import urllib
+from six.moves.urllib.request import urlretrieve
 import os.path
 import sys
 
@@ -40,7 +40,7 @@ def download_gc():
         print("File already downloaded")
         return out_fname
     print("Downloading Globcover data from %s" % GLOBCOVER_URL)
-    urllib.urlretrieve(GLOBCOVER_URL, out_fname)
+    urlretrieve(GLOBCOVER_URL, out_fname)
     print("Download completed!")
     return os.path.basename(GLOBCOVER_URL)
 

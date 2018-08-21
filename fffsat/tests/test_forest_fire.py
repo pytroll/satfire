@@ -259,7 +259,7 @@ class TestForestFire(unittest.TestCase):
         # Water should not be on fire
         res, stats = self.fff.qualify_fires(8, 8, is_day=True)
         self.assertEqual(res, forest_fire.QUALITY_NOT_FIRE)
-        stat_keys = stats.keys()
+        stat_keys = list(stats.keys())
         stat_keys.sort()
         self.assertEqual(stat_keys, ordered_stat_keys)
         self.assertAlmostEqual(stats[stat_keys[0]], 0.0807801282323588, 4)
