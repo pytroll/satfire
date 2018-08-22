@@ -110,14 +110,15 @@ class ForestFire(object):
         self.data = utils.read_sat_data(sat_fname,
                                         self.config["channels_to_load"],
                                         reader=self.config["satpy_reader"])
-        self.data.info.update(msg.data)
+        self.data.attrs.update(msg.data)
 
         if cma_fname is not None:
             logging.info("Reading PPS cloud mask")
             self.nwc_mask = utils.read_cma(cma_fname)
 
         # Initial mask
-        self.mask = self.data[self.config["nir_chan_name"]].mask.copy()
+        self.mask = np.isnan(self.data[self.config["nir_chan_name"]])
+
         # Apply all masks
         self.mask_data()
         # Find hotspots
@@ -131,8 +132,8 @@ class ForestFire(object):
     def collect_sat_data(self):
         """Collect satellite data for each forest fire candidate"""
         # Calculate exact observation times from start and end times
-        start_time = self.data.info['start_time']
-        end_time = self.data.info['end_time']
+        start_time = self.data.attrs['start_time']
+        end_time = self.data.attrs['end_time']
         diff = (end_time - start_time) / \
             self.data[self.config['ir1_chan_name']].shape[0]
         for row, col in self.fires:
@@ -178,7 +179,7 @@ class ForestFire(object):
         if fname is None:
             print(output_text)
         else:
-            fname = compose(fname, self.data.info)
+            fname = compose(fname, self.data.attrs)
             with open(fname, 'w') as fid:
                 if header is not None:
                     fid.write(header)
@@ -197,7 +198,7 @@ class ForestFire(object):
             return
         if fname is None:
             fname = self.config["hdf5_fname_pattern"]
-        fname = compose(fname, self.data.info)
+        fname = compose(fname, self.data.attrs)
         utils.save_hdf5(fname, self.fires)
         logging.info("Output written to %s", fname)
 
@@ -212,7 +213,7 @@ class ForestFire(object):
         try:
             meta = self.data.attrs
         except AttributeError:
-            meta = self.data.info
+            meta = self.data.attrs
         sensor = meta['sensor']
         # FIXME: should only contain 'avhrr-3'
         if isinstance(sensor, (set, list, tuple)):

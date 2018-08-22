@@ -14,6 +14,7 @@ import yaml
 from collections import OrderedDict
 import datetime as dt
 
+import xarray as xr
 import numpy as np
 import h5py
 
@@ -85,7 +86,11 @@ def read_sat_data(fname, channels, reader):
         fname = [fname, ]
     glbl = Scene(filenames=fname, reader=reader)
     glbl.load(channels)
-    glbl.info["proc_time"] = dt.datetime.utcnow()
+    # Compute the dask arrays
+    for chan in channels:
+        logging.info("Loading %s", chan)
+        glbl[chan] = glbl[chan].compute()
+    glbl.attrs["proc_time"] = dt.datetime.utcnow()
 
     return glbl
 
@@ -362,10 +367,12 @@ def solve_quadratic(a__, b__, c__, limit=None):
 
     x__ = x_1.copy()
     idxs = np.isnan(x_1)
-    x__[idxs] = x_2[idxs]
+    # x__[idxs] = x_2[idxs]
+    x__ = xr.where(idxs, x_2, x__)
 
     if limit is not None:
         idxs = x__ > limit
-        x__[idxs] = x_2[idxs]
+        # x__[idxs] = x_2[idxs]
+        x__ = xr.where(idxs, x_2, x__)
 
     return x__
