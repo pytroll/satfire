@@ -89,7 +89,11 @@ def read_sat_data(fname, channels, reader):
     # Compute the dask arrays
     for chan in channels:
         logging.info("Loading %s", chan)
-        glbl[chan] = glbl[chan].compute()
+        try:
+            glbl[chan] = glbl[chan].compute()
+        except KeyError:
+            logging.error("Channel %s not available")
+            return None
     glbl.attrs["proc_time"] = dt.datetime.utcnow()
 
     return glbl

@@ -110,6 +110,9 @@ class ForestFire(object):
         self.data = utils.read_sat_data(sat_fname,
                                         self.config["channels_to_load"],
                                         reader=self.config["satpy_reader"])
+        if self.data is None:
+            self.logger.error("No data, discarding scene")
+            return False
         self.data.attrs.update(msg.data)
 
         if cma_fname is not None:
