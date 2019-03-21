@@ -45,11 +45,11 @@ class FFFsat(AbstractWorkflowComponent):
 
         fff = ForestFire(context["config"])
         try:
-            if fff.run(context["content"]):
+            if fff.run(msg=context["content"]):
                 if "text_fname_pattern" in context["config"]:
                     fff.save_text()
-                    if "hdf5_fname_pattern" in context["config"]:
-                        fff.save_hdf5()
+                if "hdf5_fname_pattern" in context["config"]:
+                    fff.save_hdf5()
             fff.clean()
         finally:
             if fff._pub is not None:
