@@ -92,7 +92,7 @@ def read_sat_data(fname, channels, reader):
         try:
             glbl[chan] = glbl[chan].compute()
         except KeyError:
-            logging.error("Channel %s not available")
+            logging.error("Channel %s not available", chan)
             return None
     glbl.attrs["proc_time"] = dt.datetime.utcnow()
 
