@@ -7,4 +7,4 @@
 #
 #   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
-"""FFFSAT package init"""
+"""Satfire package init"""

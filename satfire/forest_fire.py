@@ -18,7 +18,7 @@ except ImportError:
     NoisyPublisher = None
     Message = None
 
-from fffsat import utils
+from satfire import utils
 
 PROBABILITY_LOW = 2
 PROBABILITY_MEDIUM = 3
@@ -88,7 +88,7 @@ class ForestFire(object):
         self.fires = {}
         # Publisher, if configured
         if "publisher" in self.config and NoisyPublisher:
-            self._pub = NoisyPublisher("fffsat", **self.config["publisher"])
+            self._pub = NoisyPublisher("satfire", **self.config["publisher"])
             self.pub = self._pub.start()
         else:
             self._pub = None

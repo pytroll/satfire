@@ -1,4 +1,4 @@
-# Configuration for FMI Forest Fire satellite software
+# Configuration for satellite forest fire detection software
 
 # Paths, masking configs, etc.
 
@@ -7,14 +7,14 @@
 # - start_time (swath start time, UTC)
 # - end_time (swath end time, UTC)
 # - proc_time (processing time, UTC)
-text_fname_pattern: "{start_time:%Y%m%d_%H%M}_fffsat.txt"
+text_fname_pattern: "{start_time:%Y%m%d_%H%M}_satfire.txt"
 # If set, send pytroll messages about saved text files with this topic
-# text_publish_topic: "/ears-avhrr/fffsat/txt"
+# text_publish_topic: "/ears-avhrr/satfire/txt"
 
 # If defined, dump all data collected from forest fire detections to HDF5 file
-hdf5_fname_pattern: "/tmp/{start_time:%Y%m%d_%H%M}_fffsat.h5"
+hdf5_fname_pattern: "/tmp/{start_time:%Y%m%d_%H%M}_satfire.h5"
 # If set, send pytroll messages about saved HDF5 files with this topic
-# hdf5_publish_topic: "/ears-avhrr/fffsat/hdf5"
+# hdf5_publish_topic: "/ears-avhrr/satfire/hdf5"
 
 # Publisher config.  Need to have atleast a empty dict if publishing
 # is used.  The publisher default values are copied below.
@@ -231,7 +231,7 @@ standalone_log_config:
       class: logging.handlers.TimedRotatingFileHandler
       level: DEBUG
       formatter: simple
-      filename: /tmp/fffsat.log
+      filename: /tmp/satfire.log
       backupCount: 7
       when: midnight
       utc: True

@@ -17,7 +17,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from fffsat import utils
+from satfire import utils
 
 from posttroll.message import Message
 

@@ -14,8 +14,8 @@ import logging
 import logging.config
 
 from posttroll.message import Message
-from fffsat.utils import read_config
-from fffsat.forest_fire import ForestFire
+from satfire.utils import read_config
+from satfire.forest_fire import ForestFire
 
 
 def main():

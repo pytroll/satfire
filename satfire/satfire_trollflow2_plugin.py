@@ -7,13 +7,13 @@
 #
 #   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
-"""FFFsat plugin for Trollflow2"""
+"""Satfire plugin for Trollflow2"""
 
 import logging
 
-from fffsat.forest_fire import ForestFire
+from satfire.forest_fire import ForestFire
 
-LOGGER = logging.getLogger("FFFSat")
+LOGGER = logging.getLogger("Satfire")
 
 
 def forest_fire(job):

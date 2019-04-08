@@ -6,7 +6,7 @@
 # Author(s):
 #
 #   Panu Lahtinen <panu.lahtinen@fmi.fi>
-"""Utility functions for FFFsat"""
+"""Utility functions for Satfire"""
 
 import logging
 import os.path

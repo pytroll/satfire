@@ -7,27 +7,27 @@
 
 #   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
-"""Setup for fffsat
+"""Setup for satfire
 """
 from setuptools import setup
 import imp
 
-version = imp.load_source('fffsat.version', 'fffsat/version.py')
+version = imp.load_source('satfire.version', 'satfire/version.py')
 
-setup(name="fffsat",
+setup(name="satfire",
       version=version.__version__,
       description='Forest fire detection based on satellite imager from ' +
       'AVHRR/3 and VIIRS instruments',
       author='Panu Lahtinen',
       author_email='panu.lahtinen@fmi.fi',
       url="https://github.com/fmidev/fmi-forest-fire-satellite",
-      packages=['fffsat',
-                'fffsat.tests'
+      packages=['satfire',
+                'satfire.tests'
                 ],
       data_files=[],
       zip_safe=False,
       install_requires=['pyyaml', 'satpy', 'trollflow', 'trollflow-sat'],
       tests_require=['mock', 'pyyaml', 'satpy', 'trollflow', 'trollflow-sat',
                      'posttroll'],
-      test_suite='fffsat.tests.suite',
+      test_suite='satfire.tests.suite',
       )

@@ -16,9 +16,9 @@ import os.path
 
 import numpy as np
 
-from fffsat.forest_fire import ForestFire
-from fffsat import forest_fire
-from fffsat import utils
+from satfire.forest_fire import ForestFire
+from satfire import forest_fire
+from satfire import utils
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest

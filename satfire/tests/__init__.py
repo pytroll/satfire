@@ -10,8 +10,8 @@
 
 import unittest
 # import doctest
-from fffsat.tests import (test_utils,
-                          test_forest_fire)
+from satfire.tests import (test_utils,
+                           test_forest_fire)
 
 
 def suite():

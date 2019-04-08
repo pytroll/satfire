@@ -4,8 +4,8 @@ config:
     true
   log_config:
     log_config.ini
-  fffsat_config: &fffsat_config
-    !!python/object/apply:fffsat.utils.read_config
+  satfire_config: &satfire_config
+    !!python/object/apply:satfire.utils.read_config
       - /path/to/forest_fire_avhrr.yaml
 
 work:
@@ -16,8 +16,8 @@ work:
             topics:
               - /segment-hrpt-and-pps/
     - type: workflow
-      name: fffsat
+      name: satfire
       Workflow:
-        - fffsat.fffsat_plugin.FFFsat:
-            config: *fffsat_config
+        - satfire.satfire_plugin.Satfire:
+            config: *satfire_config
             use_lock: *use_locks
