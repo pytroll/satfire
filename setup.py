@@ -24,6 +24,10 @@ setup(name="satfire",
       packages=['satfire',
                 'satfire.tests'
                 ],
+      scripts=[
+               'bin/prepare_globcover.py',
+               'bin/satfire_standalone.py',
+               ],
       data_files=[],
       zip_safe=False,
       install_requires=['pyyaml', 'satpy', 'trollflow', 'trollflow-sat'],
