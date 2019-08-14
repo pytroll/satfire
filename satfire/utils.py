@@ -119,9 +119,9 @@ def check_globcover(fname, idxs, lonlats, footprints, settings, metadata):
     logging.info("Apply Globcover masking")
     with h5py.File(fname, 'r') as fid:
         # Read mask coordinates and mask data
-        mask_lon_v = fid['longitudes'].value
-        mask_lat_v = fid['latitudes'].value
-        full_mask = fid['data'].value
+        mask_lon_v = fid['longitudes'][()]
+        mask_lat_v = fid['latitudes'][()]
+        full_mask = fid['data'][()]
         mask_resolution = np.abs(mask_lon_v[1] - mask_lon_v[0])
 
         # Convert coordinates to 2D arrays
