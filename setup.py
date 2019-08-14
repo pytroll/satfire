@@ -20,7 +20,7 @@ setup(name="satfire",
       'AVHRR/3 and VIIRS instruments',
       author='Panu Lahtinen',
       author_email='panu.lahtinen@fmi.fi',
-      url="https://github.com/fmidev/fmi-forest-fire-satellite",
+      url="https://github.com/pytroll/satfire",
       packages=['satfire',
                 'satfire.tests'
                 ],
