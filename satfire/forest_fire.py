@@ -412,13 +412,15 @@ class ForestFire(object):
                           candidate_mask)
 
             num_candidates = candidates.sum() or 0
-            logging.info("Initial candidates: %d", num_candidates)
             rows, cols = np.nonzero(candidates)
 
             # If there's no data, exit
             if rows.size == 0:
                 logging.info("No candidates found.")
                 break
+
+            logging.info("Initial candidates: %d", num_candidates)
+
             # Remove invalid points using static masks
             rows, cols, metadata = self.check_static_masks(rows, cols)
 

@@ -67,6 +67,9 @@ sat_message_tag:
 
 # Masking functions that apply auxiliary static data not in satellite projection
 static_mask_functions:
+  check_globcover_area:
+    filename:
+      /path/to/globcover.h5
   check_globcover:
     filename:
       /path/to/globcover.h5

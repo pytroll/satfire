@@ -117,14 +117,14 @@ def read_cma(fname):
     return cma.data != 0
 
 
-def check_globcover(fname, idxs, lonlats, footprints, settings, metadata):
+def check_globcover_area(fname, idxs, lonlats, footprints, settings, metadata):
     """Check globcover mask."""
     lons, lats = lonlats
     along, across = footprints
 
     masked_num = idxs.sum()
 
-    logging.info("Apply Globcover masking")
+    logging.info("Mask areas outside Globcover data")
     with h5py.File(fname, 'r') as fid:
         # Read mask coordinates and mask data
         mask_lon_v = fid['longitudes'][()]
@@ -145,20 +145,41 @@ def check_globcover(fname, idxs, lonlats, footprints, settings, metadata):
         idxs[out_idxs] = True
         logging.info("%d candidates removed outside Globcover area",
                      idxs.sum() - masked_num)
+
+    return idxs, metadata
+
+
+def check_globcover(fname, idxs, lonlats, footprints, settings, metadata):
+    """Check globcover mask."""
+    lons, lats = lonlats
+    along, across = footprints
+
+    masked_num = idxs.sum()
+
+    logging.info("Apply Globcover landuse masking")
+    with h5py.File(fname, 'r') as fid:
+        # Read mask coordinates and mask data
+        mask_lon_v = fid['longitudes'][()]
+        mask_lat_v = fid['latitudes'][()]
+        full_mask = fid['data'][()]
+
+        # Convert coordinates to 2D arrays
+        mask_lon, mask_lat = np.meshgrid(mask_lon_v, mask_lat_v)
         masked_num = idxs.sum()
 
-        logging.info("Check landuse for %d candidates", sum(~idxs))
-        for i in range(len(idxs)):
-            # Skip already masked pixels
-            if idxs[i] is True:
-                continue
+        results = []
+        logging.info("Check landuse for %d candidates", len(idxs) - masked_num)
 
+        # Only check data that isn't already masked
+        for i in np.where(idxs == False)[0]:
             max_radius = np.max((along[i], across[i])) / 2.
             metadata[i]['footprint_radius'] = max_radius
             metadata[i]['along_radius'] = along[i] / 2.
             metadata[i]['across_radius'] = across[i] / 2.
 
-            idxs[i], meta = check_landuse(mask_lon, mask_lat, lons[i], lats[i], full_mask, max_radius, settings)
+            idxs[i], meta = check_landuse(mask_lon, mask_lat,
+                                          lons[i], lats[i], full_mask,
+                                          max_radius, settings)
             metadata[i].update(meta)
 
     logging.info("Removed %d candidates based on landuse",
