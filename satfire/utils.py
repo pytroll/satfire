@@ -86,23 +86,31 @@ def read_sat_data(fname, channels, reader):
         fname = [fname, ]
     glbl = Scene(filenames=fname, reader=reader)
     glbl.load(channels)
-    # Compute the dask arrays
+
+    # Convert channel data to Numpy arrays and colled metadata to
+    # dictionary.  This is a temporary work-around for modern
+    # Satpy.
+    data = {}
+    metadata = {}
     for chan in channels:
         logging.info("Loading %s", chan)
         try:
-            glbl[chan] = glbl[chan].compute()
+            data[chan] = np.array(glbl[chan])
+            metadata[chan] = glbl[chan].attrs
         except KeyError:
             logging.error("Channel %s not available", chan)
             return None
-    glbl.attrs["proc_time"] = dt.datetime.utcnow()
+    # Global metadata
+    metadata.update(glbl.attrs)
+    metadata["proc_time"] = dt.datetime.utcnow()
 
-    return glbl
+    return data, metadata
 
 
 def read_cma(fname):
     """Read cloud mask data"""
     try:
-        glbl = read_sat_data(fname, ["cma", ], "nc_nwcsaf_pps")
+        data, _ = read_sat_data(fname, ["cma", ], "nc_nwcsaf_pps")
         cma = glbl['cma']
     except ValueError:
         return None
@@ -140,6 +148,7 @@ def check_globcover(fname, idxs, lonlats, footprints, settings, metadata):
                      idxs.sum() - masked_num)
         masked_num = idxs.sum()
 
+        logging.info("Check landuse for %d candidates", sum(~idxs))
         for i in range(len(idxs)):
             # Skip already masked pixels
             if idxs[i] is True:

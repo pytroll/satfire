@@ -73,9 +73,11 @@ class ForestFire(object):
     def __init__(self, config):
         # Configuration dictionary for ForestFire class
         self.config = config
-        # Unprojected satpy scene with all the required channels, angles and
+        # Unprojected data with all the required channels, angles and
         # coordinates
         self.data = None
+        # Channel metadata
+        self.metadata = None
         # Common mask for all the datasets in self.data
         # All invalid pixels are set as True.  After processing the locations
         # marked as False are the valid forest fires.
@@ -107,13 +109,14 @@ class ForestFire(object):
                                 msg.data['platform_name'])
             return False
         logging.info("Reading satellite data from %s", sat_fname)
-        self.data = utils.read_sat_data(sat_fname,
-                                        self.config["channels_to_load"],
-                                        reader=self.config["satpy_reader"])
+        self.data, self.metadata = utils.read_sat_data(
+            sat_fname,
+            self.config["channels_to_load"],
+            reader=self.config["satpy_reader"])
         if self.data is None:
             self.logger.error("No data, discarding scene")
             return False
-        self.data.attrs.update(msg.data)
+        self.metadata.update(msg.data)
 
         if cma_fname is not None:
             logging.info("Reading PPS cloud mask")
@@ -135,8 +138,8 @@ class ForestFire(object):
     def collect_sat_data(self):
         """Collect satellite data for each forest fire candidate"""
         # Calculate exact observation times from start and end times
-        start_time = self.data.attrs['start_time']
-        end_time = self.data.attrs['end_time']
+        start_time = self.metadata['start_time']
+        end_time = self.metadata['end_time']
         diff = (end_time - start_time) / \
             self.data[self.config['ir1_chan_name']].shape[0]
         for row, col in self.fires:
@@ -182,7 +185,7 @@ class ForestFire(object):
         if fname is None:
             print(output_text)
         else:
-            fname = compose(fname, self.data.attrs)
+            fname = compose(fname, self.metadata)
             with open(fname, 'w') as fid:
                 if header is not None:
                     fid.write(header)
@@ -201,7 +204,7 @@ class ForestFire(object):
             return
         if fname is None:
             fname = self.config["hdf5_fname_pattern"]
-        fname = compose(fname, self.data.attrs)
+        fname = compose(fname, self.metadata)
         utils.save_hdf5(fname, self.fires)
         logging.info("Output written to %s", fname)
 
@@ -213,10 +216,8 @@ class ForestFire(object):
         """Send a message that file *fname* has been saved"""
         if self.pub is None:
             return
-        try:
-            meta = self.data.attrs
-        except AttributeError:
-            meta = self.data.attrs
+
+        meta = self.metadata
         sensor = meta['sensor']
         # FIXME: should only contain 'avhrr-3'
         if isinstance(sensor, (set, list, tuple)):
