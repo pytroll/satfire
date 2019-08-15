@@ -9,7 +9,6 @@
 """Utility functions for Satfire"""
 
 import logging
-import os.path
 import yaml
 from collections import OrderedDict
 import datetime as dt
@@ -23,6 +22,8 @@ from trollsift import parse
 
 # Earth radius
 R_EARTH = 6371.2200
+
+np.seterr(divide='ignore', invalid='ignore')
 
 
 def ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
@@ -48,7 +49,6 @@ def read_config(fname):
 
 def save_hdf5(fname, data):
     """Save *data* as YAML to *fname*."""
-    import h5py
     with h5py.File(fname, 'w') as fid:
         for key in data:
             fid.create_group(str(key))
@@ -117,20 +117,19 @@ def read_cma(fname):
     return cma != 0
 
 
-def check_globcover(fname, idxs, lonlats, footprints, settings, metadata):
+def check_globcover_area(fname, idxs, lonlats, footprints, settings, metadata):
     """Check globcover mask."""
     lons, lats = lonlats
     along, across = footprints
 
     masked_num = idxs.sum()
 
-    logging.info("Apply Globcover masking")
+    logging.info("Mask areas outside Globcover data")
     with h5py.File(fname, 'r') as fid:
         # Read mask coordinates and mask data
         mask_lon_v = fid['longitudes'][()]
         mask_lat_v = fid['latitudes'][()]
         full_mask = fid['data'][()]
-        mask_resolution = np.abs(mask_lon_v[1] - mask_lon_v[0])
 
         # Convert coordinates to 2D arrays
         mask_lon, mask_lat = np.meshgrid(mask_lon_v, mask_lat_v)
@@ -146,48 +145,85 @@ def check_globcover(fname, idxs, lonlats, footprints, settings, metadata):
         idxs[out_idxs] = True
         logging.info("%d candidates removed outside Globcover area",
                      idxs.sum() - masked_num)
+
+    return idxs, metadata
+
+
+def check_globcover(fname, idxs, lonlats, footprints, settings, metadata):
+    """Check globcover mask."""
+    lons, lats = lonlats
+    along, across = footprints
+
+    masked_num = idxs.sum()
+
+    logging.info("Apply Globcover landuse masking")
+    with h5py.File(fname, 'r') as fid:
+        # Read mask coordinates and mask data
+        mask_lon_v = fid['longitudes'][()]
+        mask_lat_v = fid['latitudes'][()]
+        full_mask = fid['data'][()]
+
+        # Convert coordinates to 2D arrays
+        mask_lon, mask_lat = np.meshgrid(mask_lon_v, mask_lat_v)
         masked_num = idxs.sum()
 
-        logging.info("Check landuse for %d candidates", sum(~idxs))
-        for i in range(len(idxs)):
-            # Skip already masked pixels
-            if idxs[i] is True:
-                continue
+        results = []
+        logging.info("Check landuse for %d candidates", len(idxs) - masked_num)
 
-            # Reduce mask size
-            close_idxs = get_close_idxs(mask_lon_v, mask_lat_v,
-                                        mask_resolution,
-                                        lons[i], lats[i])
-
-            # Get mask data that covers satellite footprint
+        # Only check data that isn't already masked
+        for i in np.where(idxs == False)[0]:
             max_radius = np.max((along[i], across[i])) / 2.
             metadata[i]['footprint_radius'] = max_radius
             metadata[i]['along_radius'] = along[i] / 2.
             metadata[i]['across_radius'] = across[i] / 2.
-            data = get_footprint_data(full_mask[close_idxs],
-                                      mask_lon[close_idxs],
-                                      mask_lat[close_idxs],
-                                      max_radius, lons[i], lats[i])
-            # If there's no data, we are outside of the mask thus discard this
-            # point
-            if data.size == 0:
-                idxs[i] = True
-                continue
 
-            # Check all different areatypes
-            for area_type in settings:
-                # Check if the location should be masked
-                mask = data == settings[area_type]['value']
-                ratio = float(mask.sum()) / float(mask.size)
-                metadata[i]['landuse_fraction_' + area_type] = ratio
-                if ratio > settings[area_type]['limit']:
-                    idxs[i] = True
+            idxs[i], meta = check_landuse(mask_lon, mask_lat,
+                                          lons[i], lats[i], full_mask,
+                                          max_radius, settings)
+            metadata[i].update(meta)
 
     logging.info("Removed %d candidates based on landuse",
                  idxs.sum() - masked_num)
     logging.info("Globcover masking completed.")
 
     return idxs, metadata
+
+
+def check_landuse(mask_lon, mask_lat, lon, lat, full_mask, max_radius, settings):
+    """Check landuse"""
+    # Reduce mask size
+    mask_lon_v = mask_lon[0, :]
+    mask_lat_v = mask_lat[:, 0]
+    mask_resolution = np.abs(mask_lon_v[1] - mask_lon_v[0])
+    close_idxs = get_close_idxs(mask_lon_v, mask_lat_v,
+                                mask_resolution,
+                                lon, lat)
+
+    # Get mask data that covers satellite footprint
+    data = get_footprint_data(full_mask[close_idxs],
+                              mask_lon[close_idxs],
+                              mask_lat[close_idxs],
+                              max_radius, lon, lat)
+
+    to_be_masked = False
+    metadata = {}
+
+    if data.size > 0:
+        # Check different area types
+        for area_type in settings:
+            # Check if the location should be masked
+            mask = data == settings[area_type]['value']
+            ratio = float(mask.sum()) / float(mask.size)
+            metadata['landuse_fraction_' + area_type] = ratio
+            if ratio > settings[area_type]['limit']:
+                to_be_masked = True
+                break
+    else:
+        # If there's no data, we are outside of the mask thus discard this
+        # point
+        to_be_masked = True
+
+    return to_be_masked, metadata
 
 
 def get_close_idxs(mask_lons, mask_lats, mask_resolution, lon, lat):
