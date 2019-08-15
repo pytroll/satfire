@@ -9,7 +9,6 @@
 """Utility functions for Satfire"""
 
 import logging
-import os.path
 import yaml
 from collections import OrderedDict
 import datetime as dt
@@ -23,6 +22,8 @@ from trollsift import parse
 
 # Earth radius
 R_EARTH = 6371.2200
+
+np.seterr(divide='ignore', invalid='ignore')
 
 
 def ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
@@ -48,7 +49,6 @@ def read_config(fname):
 
 def save_hdf5(fname, data):
     """Save *data* as YAML to *fname*."""
-    import h5py
     with h5py.File(fname, 'w') as fid:
         for key in data:
             fid.create_group(str(key))
