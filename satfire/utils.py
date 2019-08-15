@@ -111,10 +111,10 @@ def read_cma(fname):
     """Read cloud mask data"""
     try:
         data, _ = read_sat_data(fname, ["cma", ], "nc_nwcsaf_pps")
-        cma = glbl['cma']
+        cma = data['cma']
     except ValueError:
         return None
-    return cma.data != 0
+    return cma != 0
 
 
 def check_globcover(fname, idxs, lonlats, footprints, settings, metadata):
