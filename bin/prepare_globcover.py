@@ -129,9 +129,9 @@ def save_to_hdf5(fname, data, lons, lats, legend):
         fid['longitudes'].attrs['description'] = "Center of pixel longitudes"
         fid['latitudes'] = lats
         fid['latitudes'].attrs['description'] = "Center of pixel latitudes"
-        fid['legend_values'] = legend[0]
+        fid['legend_values'] = [np.string_(val) for val in legend[0]]
         fid['legend_values'].attrs['description'] = "Values in data"
-        fid['legend_labels'] = legend[1]
+        fid['legend_labels'] = [np.string_(val) for val in legend[1]]
         fid['legend_labels'].attrs['description'] = \
             "Data labels associated with data values"
 
