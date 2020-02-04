@@ -8,7 +8,7 @@ import sys
 import pandas as pd
 import h5py
 import numpy as np
-from libtiff import TIFF
+import rasterio
 
 GLOBCOVER_URL = "http://due.esrin.esa.int/files/Globcover2009_V2.3_Global_.zip"
 
@@ -80,8 +80,8 @@ def read_tif(fname):
     """Read TIFF image from the given filename.  Return a memmap view of the
     image.
     """
-    tif = TIFF.open(fname)
-    img = tif.read_image()
+    tif = rasterio.open(fname)
+    img = tif.read()
 
     return img
 
@@ -108,7 +108,7 @@ def read_legend(fname):
 
 def calc_lonlats(shape):
     """Calculate longitude and latitude vectors."""
-    lat_shape, lon_shape = shape
+    lat_shape, lon_shape = shape[2], shape[1]
     lons = np.linspace(CROP_WEST_LON, CROP_EAST_LON, lon_shape)
     lats = np.linspace(CROP_NORTH_LAT, CROP_SOUTH_LAT, lat_shape)
 
